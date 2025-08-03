@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Тест отображения | ClickBack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="css/main.css" rel="stylesheet"/>
+    <link href="css/styles.css" rel="stylesheet"/>
+</head>
+<body class="bg-white">
+    <!-- Header Component -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="flex items-center">
+                        <div class="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center text-white font-bold mr-3">
+                            C
+                        </div>
+                        <span class="text-xl font-bold text-gray-900">ClickBack</span>
+                    </a>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-blue-600 transition">Главная</a>
+                    <a href="properties.php" class="text-gray-700 hover:text-blue-600 transition">Новостройки</a>
+                    <a href="how-it-works.php" class="text-gray-700 hover:text-blue-600 transition">Как это работает</a>
+                    <a href="ipoteka.php" class="text-gray-700 hover:text-blue-600 transition">Ипотека</a>
+                </nav>
+                
+                <!-- Actions -->
+                <div class="flex items-center space-x-4">
+                    <a href="tel:+78001231212" class="hidden md:flex items-center text-gray-700 hover:text-blue-600 transition">
+                        <i class="fas fa-phone mr-2"></i>
+                        8 (800) 123-12-12
+                    </a>
+                    <a href="login.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                        Войти
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Test Content -->
+    <main class="py-20">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold text-gray-900 mb-6">Тест отображения сайта</h1>
+            <p class="text-xl text-gray-600 mb-8">Этот тест показывает, что CSS и JavaScript работают корректно</p>
+            
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-8 rounded-lg inline-block">
+                <i class="fas fa-check-circle text-2xl mb-4"></i>
+                <p class="text-lg">Сайт отображается правильно!</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Component -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold mr-3">
+                            C
+                        </div>
+                        <span class="text-xl font-bold">ClickBack</span>
+                    </div>
+                    <p class="text-gray-400 mb-4">Кэшбек за новостройки в Краснодаре до 500 000 ₽</p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Навигация</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/" class="text-gray-400 hover:text-white transition">Главная</a></li>
+                        <li><a href="properties.php" class="text-gray-400 hover:text-white transition">Новостройки</a></li>
+                        <li><a href="how-it-works.php" class="text-gray-400 hover:text-white transition">Как это работает</a></li>
+                        <li><a href="ipoteka.php" class="text-gray-400 hover:text-white transition">Ипотека</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact -->
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <ul class="space-y-2">
+                        <li class="text-gray-400">
+                            <i class="fas fa-phone mr-2"></i>
+                            8 (800) 123-12-12
+                        </li>
+                        <li class="text-gray-400">
+                            <i class="fas fa-envelope mr-2"></i>
+                            info@clickback.ru
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Copyright -->
+                <div>
+                    <p class="text-gray-400">© 2025 ClickBack. Все права защищены.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>

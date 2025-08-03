@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON-стиль уведомлений</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #3b82f6;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #3b82f6 transparent transparent transparent;
+        }
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .alert {
+            transition: all 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        .alert.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        .alert.hide {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        
+        /* Кастомные анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .alert-pulse {
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen p-4">
+    <div class="container mx-auto max-w-6xl">
+        <h1 class="text-3xl font-bold text-slate-800 mb-2">TON-стиль уведомлений</h1>
+        <p class="text-slate-600 mb-8">Гибкая система всплывающих уведомлений в стиле TON</p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <!-- Демо панель -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Демонстрация</h2>
+                
+                <!-- Примеры уведомлений (статичные для демонстрации) -->
+                <div id="alert-preview" class="space-y-3 mb-8">
+                    <div class="alert bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-lg flex items-start show">
+                        <i class="fas fa-check-circle text-emerald-500 mt-1 mr-3"></i>
+                        <div>
+                            <p class="font-medium">Успешное действие</p>
+                            <p class="text-sm mt-1">Операция выполнена успешно.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="alert bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-lg flex items-start show">
+                        <i class="fas fa-info-circle text-blue-500 mt-1 mr-3"></i>
+                        <div>
+                            <p class="font-medium">Информация</p>
+                            <p class="text-sm mt-1">Система обновлена до версии 2.3</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                    <div class="tooltip col-span-2 text-center">
+                        <span class="tooltip-text">Эти кнопки показывают разные типы уведомлений</span>
+                        <p class="text-slate-500 text-sm italic hover:text-blue-500 cursor-default">Наведи на меня для подсказки ↓</p>
+                    </div>
+                    
+                    <button onclick="showAlert('success')" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-800 py-2 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-check-circle mr-2"></i> Успех
+                    </button>
+                    <button onclick="showAlert('error')" class="bg-red-100 hover:bg-red-200 text-red-800 py-2 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-times-circle mr-2"></i> Ошибка
+                    </button>
+                    <button onclick="showAlert('warning')" class="bg-amber-100 hover:bg-amber-200 text-amber-800 py-2 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Предупреждение
+                    </button>
+                    <button onclick="showAlert('info')" class="bg-blue-100 hover:bg-blue-200 text-blue-800 py-2 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-info-circle mr-2"></i> Информация
+                    </button>
+                    <button onclick="showAlert('custom', 'Пользовательское уведомление', 'Это сообщение можно настроить как угодно!', 'fas fa-bolt', 'text-purple-800', 'bg-purple-100', 'border-purple-200')" class="bg-purple-100 hover:bg-purple-200 text-purple-800 py-2 px-4 rounded-lg transition flex items-center justify-center col-span-2">
+                        <i class="fas fa-bolt mr-2"></i> Кастомное
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Код для интеграции -->
+            <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Интеграция</h2>
+                <p class="text-slate-600 mb-4">Добавьте этот код в ваш проект для использования системы уведомлений:</p>
+                
+                <!-- Interactive Tooltip Demo -->
+                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200 mt-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-4">Демо подсказок</h3>
+                    
+                    <div class="flex flex-wrap gap-4">
+                        <div class="tooltip">
+                            <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition">
+                                Базовая подсказка
+                            </button>
+                            <span class="tooltip-text">Это стандартная подсказка в стиле TON</span>
+                        </div>
+                        
+                        <div class="tooltip">
+                            <button class="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg transition">
+                                Подсказка слева
+                            </button>
+                            <span class="tooltip-text" style="left: 0; transform: none; right: auto">Подсказка может быть с другой стороны</span>
+                        </div>
+                        
+                        <div class="tooltip">
+                            <button class="bg-pink-500 hover:bg-pink-600 text-white py-2 px-4 rounded-lg transition">
+                                Много текста
+                            </button>
+                            <span class="tooltip-text" style="width: 250px">Это пример подсказки с большим количеством текста, который может занимать несколько строк и помогать пользователю понять сложные элементы интерфейса.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-slate-800 rounded-lg p-4 text-xs text-slate-100 font-mono overflow-x-auto mb-4">
+                    <pre><code class="language-html">&lt;!-- Добавьте в HEAD --&gt;
+&lt;script src="https://cdn.tailwindcss.com"&gt;&lt;/script&gt;
+&lt;link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"&gt;
+
+&lt;!-- Добавьте перед закрывающим BODY --&gt;
+&lt;div id="alert-container" class="fixed z-50 w-full md:w-auto md:max-w-md top-4 right-4 space-y-3"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+// Функция для отображения уведомлений
+function showAlert(type = 'info', title = '', message = '', icon = '', textColor = '', bgColor = '', borderColor = '') {
+    // Установки по умолчанию для разных типов
+    const defaults = {
+        success: {
+            title: 'Успешно',
+            message: 'Операция выполнена успешно',
+            icon: 'fa-check-circle',
+            textColor: 'text-emerald-800',
+            bgColor: 'bg-emerald-50',
+            borderColor: 'border-emerald-200'
+        },
+        error: {
+            title: 'Ошибка',
+            message: 'Произошла ошибка',
+            icon: 'fa-times-circle',
+            textColor: 'text-red-800',
+            bgColor: 'bg-red-50',
+            borderColor: 'border-red-200'
+        },
+        warning: {
+            title: 'Предупреждение',
+            message: 'Обратите внимание',
+            icon: 'fa-exclamation-triangle',
+            textColor: 'text-amber-800',
+            bgColor: 'bg-amber-50',
+            borderColor: 'border-amber-200'
+        },
+        info: {
+            title: 'Информация',
+            message: 'Это информационное сообщение',
+            icon: 'fa-info-circle',
+            textColor: 'text-blue-800',
+            bgColor: 'bg-blue-50',
+            borderColor: 'border-blue-200'
+        }
+    };
+
+    // Используем настройки по умолчанию, если не переданы параметры
+    if (defaults[type] && !title) {
+        title = defaults[type].title;
+        message = defaults[type].message;
+        icon = defaults[type].icon;
+        textColor = defaults[type].textColor;
+        bgColor = defaults[type].bgColor;
+        borderColor = defaults[type].borderColor;
+    }
+
+    // Создаем элемент уведомления
+    const alertId = 'alert-' + Date.now();
+    const alertEl = document.createElement('div');
+    alertEl.id = alertId;
+    alertEl.className = `alert ${bgColor} border ${borderColor} ${textColor} px-4 py-3 rounded-lg flex items-start relative shadow-md`;
+    alertEl.innerHTML = `
+        &lt;i class="fas ${icon} mt-1 mr-3"&gt;&lt;/i&gt;
+        &lt;div class="flex-1"&gt;
+            &lt;p class="font-medium"&gt;${title}&lt;/p&gt;
+            ${message ? `&lt;p class="text-sm mt-1"&gt;${message}&lt;/p&gt;` : ''}
+        &lt;/div&gt;
+        &lt;button onclick="closeAlert('${alertId}')" class="ml-3 text-slate-400 hover:text-slate-600"&gt;
+            &lt;i class="fas fa-times"&gt;&lt;/i&gt;
+        &lt;/button&gt;
+    `;
+
+    // Добавляем в контейнер
+    const container = document.getElementById('alert-container') || createAlertContainer();
+    container.insertBefore(alertEl, container.firstChild);
+
+    // Анимация появления
+    setTimeout(() => {
+        alertEl.classList.add('show');
+    }, 10);
+
+    // Автоматическое закрытие через 5 секунд (кроме ошибок)
+    if (type !== 'error') {
+        setTimeout(() => {
+            closeAlert(alertId);
+        }, 5000);
+    }
+}
+
+// Закрытие уведомления
+function closeAlert(id) {
+    const alertEl = document.getElementById(id);
+    if (alertEl) {
+        alertEl.classList.remove('show');
+        alertEl.classList.add('hide');
+        setTimeout(() => {
+            alertEl.remove();
+        }, 300);
+    }
+}
+
+// Создание контейнера, если его нет
+function createAlertContainer() {
+    const container = document.createElement('div');
+    container.id = 'alert-container';
+    container.className = 'fixed z-50 w-full md:w-auto md:max-w-md top-4 right-4 space-y-3';
+    document.body.appendChild(container);
+    return container;
+}
+
+// Инициализация контейнера при загрузке
+window.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('alert-container')) {
+        createAlertContainer();
+    }
+});
+&lt;/script&gt;</code></pre>
+                </div>
+                
+                <p class="text-slate-600 text-sm mb-4">Используйте функцию <code class="bg-slate-100 px-1 py-0.5 rounded">showAlert(type, title, message, icon, textColor, bgColor, borderColor)</code> для вызова уведомлений.</p>
+                
+                <h3 class="text-lg font-semibold text-slate-800 mb-2">Подсказки при наведении</h3>
+                <div class="bg-slate-800 rounded-lg p-4 text-xs text-slate-100 font-mono overflow-x-auto mb-2">
+                    <pre><code class="language-html">&lt;!-- Стандартная подсказка --&gt;
+&lt;div class="tooltip"&gt;
+  &lt;button class="..."&gt;Наведи на меня&lt;/button&gt;
+  &lt;span class="tooltip-text"&gt;Текст подсказки&lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- Стили можно изменять добавляя классы: --&gt;
+&lt;style&gt;
+.tooltip .custom-tooltip {
+  background-color: #ff5733;
+  width: 150px;
+}
+.tooltip .custom-tooltip::after {
+  border-color: #ff5733 transparent transparent transparent;
+}
+&lt;/style&gt;
+
+&lt;div class="tooltip"&gt;
+  &lt;button class="..."&gt;Кастомная подсказка&lt;/button&gt;
+  &lt;span class="tooltip-text custom-tooltip"&gt;Текст с другим стилем&lt;/span&gt;
+&lt;/div&gt;</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Контейнер для реальных уведомлений -->
+    <div id="alert-container" class="fixed z-50 w-full md:w-auto md:max-w-md top-4 right-4 space-y-3 px-4 md:px-0"></div>
+    
+    <script>
+        // Функция для отображения уведомлений
+        function showAlert(type = 'info', title = '', message = '', icon = '', textColor = '', bgColor = '', borderColor = '') {
+            // Установки по умолчанию для разных типов
+            const defaults = {
+                success: {
+                    title: 'Успешно',
+                    message: 'Операция выполнена успешно',
+                    icon: 'fa-check-circle',
+                    textColor: 'text-emerald-800',
+                    bgColor: 'bg-emerald-50',
+                    borderColor: 'border-emerald-200'
+                },
+                error: {
+                    title: 'Ошибка',
+                    message: 'Произошла ошибка',
+                    icon: 'fa-times-circle',
+                    textColor: 'text-red-800',
+                    bgColor: 'bg-red-50',
+                    borderColor: 'border-red-200'
+                },
+                warning: {
+                    title: 'Предупреждение',
+                    message: 'Обратите внимание',
+                    icon: 'fa-exclamation-triangle',
+                    textColor: 'text-amber-800',
+                    bgColor: 'bg-amber-50',
+                    borderColor: 'border-amber-200'
+                },
+                info: {
+                    title: 'Информация',
+                    message: 'Это информационное сообщение',
+                    icon: 'fa-info-circle',
+                    textColor: 'text-blue-800',
+                    bgColor: 'bg-blue-50',
+                    borderColor: 'border-blue-200'
+                }
+            };
+
+            // Используем настройки по умолчанию, если не переданы параметры
+            if (defaults[type] && !title) {
+                const config = defaults[type];
+                title = config.title;
+                message = config.message;
+                icon = config.icon;
+                textColor = config.textColor;
+                bgColor = config.bgColor;
+                borderColor = config.borderColor;
+            }
+
+            // Создаем элемент уведомления
+            const alertId = 'alert-' + Date.now();
+            const alertEl = document.createElement('div');
+            alertEl.id = alertId;
+            alertEl.className = `alert ${bgColor} border ${borderColor} ${textColor} px-4 py-3 rounded-lg flex items-start relative shadow-md`;
+            alertEl.innerHTML = `
+                <i class="fas ${icon} mt-1 mr-3"></i>
+                <div class="flex-1">
+                    <p class="font-medium">${title}</p>
+                    ${message ? `<p class="text-sm mt-1">${message}</p>` : ''}
+                </div>
+                <button onclick="closeAlert('${alertId}')" class="ml-3 text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            // Добавляем в контейнер
+            const container = document.getElementById('alert-container') || createAlertContainer();
+            container.insertBefore(alertEl, container.firstChild);
+
+            // Анимация появления
+            setTimeout(() => {
+                alertEl.classList.add('show');
+            }, 10);
+
+            // Автоматическое закрытие через 5 секунд (кроме ошибок)
+            if (type !== 'error') {
+                setTimeout(() => {
+                    closeAlert(alertId);
+                }, 5000);
+            }
+        }
+
+        // Закрытие уведомления
+        function closeAlert(id) {
+            const alertEl = document.getElementById(id);
+            if (alertEl) {
+                alertEl.classList.remove('show');
+                alertEl.classList.add('hide');
+                setTimeout(() => {
+                    alertEl.remove();
+                }, 300);
+            }
+        }
+
+        // Создание контейнера, если его нет
+        function createAlertContainer() {
+            const container = document.createElement('div');
+            container.id = 'alert-container';
+            container.className = 'fixed z-50 w-full md:w-auto md:max-w-md top-4 right-4 space-y-3';
+            document.body.appendChild(container);
+            return container;
+        }
+
+        // Инициализация контейнера при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!document.getElementById('alert-container')) {
+                createAlertContainer();
+            }
+        });
+    </script>
+</body>
+</html>

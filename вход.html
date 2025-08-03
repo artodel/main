@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Cashback - Кешбэк при покупке новостройки</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .ton-gradient {
+            background: linear-gradient(135deg, #0088cc, #00a8dc);
+        }
+        .ton-btn {
+            background: linear-gradient(135deg, #0088cc, #00a8dc);
+            transition: all 0.3s;
+        }
+        .ton-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 168, 220, 0.3);
+        }
+        .input-field {
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+        .input-field:focus {
+            border-color: #0088cc;
+            box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.2);
+        }
+        .page-transition {
+            transition: all 0.5s ease;
+        }
+        .hidden {
+            display: none;
+            opacity: 0;
+        }
+        .visible {
+            display: block;
+            opacity: 1;
+        }
+        .wallet-icon {
+            background: linear-gradient(135deg, #0088cc, #00a8dc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans" style="background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBvcGFjaXR5PSIwLjAzIj48cGF0aCBkPSJNMCAwaDQwdjQwSDB6IiBmaWxsPSJub25lIi8+PHBhdGggZD0iTTExIDE5aDJ2MkgxMXptOCAwaDJ2MmgtMnptLTQgMGgydjJoLTJ6bS04LTJoMnYySDd6bTQgMGgydjJoLTJ6bTggMGgydjJoLTJ6bS04LTJoMnYySDd6bTQgMGgydjJoLTJ6bTggMGgydjJoLTJ6IiBzdHJva2U9IiMwMDg4Y2MiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==');">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12">
+            <div class="flex items-center">
+                <i class="fab fa-telegram text-4xl mr-3 wallet-icon"></i>
+                <h1 class="text-2xl font-bold text-gray-800">TON Cashback</h1>
+            </div>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#" class="text-gray-600 hover:text-blue-500">О сервисе</a>
+                <a href="#" class="text-gray-600 hover:text-blue-500">Как это работает</a>
+                <a href="#" class="text-gray-600 hover:text-blue-500">Партнеры</a>
+                <a href="#" class="text-gray-600 hover:text-blue-500">FAQ</a>
+            </nav>
+            <button class="md:hidden text-gray-600">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden p-8">
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 mb-6">
+                <button id="login-tab" class="flex-1 py-2 px-4 font-medium text-center text-blue-500 border-b-2 border-blue-500">
+                    Вход
+                </button>
+                <button id="register-tab" class="flex-1 py-2 px-4 font-medium text-center text-gray-500 hover:text-blue-500">
+                    Регистрация
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-page" class="page-transition visible">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Войдите в аккаунт</h2>
+                <form id="login-form">
+                    <div class="mb-4">
+                        <label for="login-email" class="block text-gray-700 text-sm font-medium mb-2">Email или телефон</label>
+                        <input type="text" id="login-email" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="example@mail.com">
+                    </div>
+                    <div class="mb-6">
+                        <label for="login-password" class="block text-gray-700 text-sm font-medium mb-2">Пароль</label>
+                        <div class="relative">
+                            <input type="password" id="login-password" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="••••••••">
+                            <button type="button" class="absolute right-3 top-2 text-gray-500 hover:text-blue-500">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            <a href="#" id="forgot-password-link" class="text-sm text-blue-500 hover:underline">Забыли пароль?</a>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-3 px-4 rounded-lg ton-btn text-white font-medium mb-4">
+                        Войти
+                    </button>
+                    <div class="text-center text-sm text-gray-600 mb-4">или войти с помощью</div>
+                    <div class="flex justify-center space-x-4 mb-6">
+                        <button type="button" class="p-2 border border-gray-300 rounded-full hover:bg-gray-100">
+                            <i class="fab fa-google text-red-500"></i>
+                        </button>
+                        <button type="button" class="p-2 border border-gray-300 rounded-full hover:bg-gray-100">
+                            <i class="fab fa-apple text-gray-800"></i>
+                        </button>
+                        <button type="button" class="p-2 border border-gray-300 rounded-full hover:bg-gray-100">
+                            <i class="fab fa-telegram text-blue-400"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-page" class="page-transition hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Создайте аккаунт</h2>
+                <form id="register-form">
+                    <div class="mb-4">
+                        <label for="register-name" class="block text-gray-700 text-sm font-medium mb-2">Имя</label>
+                        <input type="text" id="register-name" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="Иван Иванов">
+                    </div>
+                    <div class="mb-4">
+                        <label for="register-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                        <input type="email" id="register-email" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="example@mail.com">
+                    </div>
+                    <div class="mb-4">
+                        <label for="register-phone" class="block text-gray-700 text-sm font-medium mb-2">Телефон</label>
+                        <input type="tel" id="register-phone" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="+7 (999) 123-45-67">
+                    </div>
+                    <div class="mb-4">
+                        <label for="register-city" class="block text-gray-700 text-sm font-medium mb-2">Город</label>
+                        <input type="text" id="register-city" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="Москва">
+                    </div>
+                    <div class="mb-4">
+                        <label for="register-password" class="block text-gray-700 text-sm font-medium mb-2">Пароль</label>
+                        <div class="relative">
+                            <input type="password" id="register-password" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="••••••••">
+                            <button type="button" class="absolute right-3 top-2 text-gray-500 hover:text-blue-500">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Минимум 8 символов, включая цифры и буквы</p>
+                    </div>
+                    <div class="mb-6">
+                        <label for="register-confirm" class="block text-gray-700 text-sm font-medium mb-2">Подтвердите пароль</label>
+                        <div class="relative">
+                            <input type="password" id="register-confirm" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="••••••••">
+                            <button type="button" class="absolute right-3 top-2 text-gray-500 hover:text-blue-500">
+                                <i class="far fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="flex items-center">
+                            <input type="checkbox" class="rounded text-blue-500 focus:ring-blue-400">
+                            <span class="ml-2 text-sm text-gray-700">Я согласен с <a href="#" class="text-blue-500 hover:underline">Условиями использования</a> и <a href="#" class="text-blue-500 hover:underline">Политикой конфиденциальности</a></span>
+                        </label>
+                    </div>
+                    <button type="submit" class="w-full py-3 px-4 rounded-lg ton-btn text-white font-medium mb-4">
+                        Зарегистрироваться
+                    </button>
+                    <div class="text-center text-sm text-gray-600">
+                        Уже есть аккаунт? <a href="#" id="login-link" class="text-blue-500 hover:underline">Войти</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Forgot Password Form -->
+            <div id="forgot-page" class="page-transition hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Восстановление пароля</h2>
+                <form id="forgot-form">
+                    <div class="mb-6">
+                        <label for="forgot-email" class="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                        <input type="email" id="forgot-email" class="w-full px-3 py-2 rounded-lg input-field focus:outline-none" placeholder="example@mail.com">
+                        <p class="text-xs text-gray-500 mt-1">На этот email мы отправим инструкции по восстановлению</p>
+                    </div>
+                    <button type="submit" class="w-full py-3 px-4 rounded-lg ton-btn text-white font-medium mb-4">
+                        Отправить
+                    </button>
+                    <div class="text-center text-sm text-gray-600">
+                        <a href="#" id="back-to-login" class="text-blue-500 hover:underline">Вернуться к входу</a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Success Message (hidden by default) -->
+            <div id="success-message" class="page-transition hidden text-center py-8">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-500 text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Успешно!</h3>
+                <p class="text-gray-600 mb-6">Проверьте ваш email для дальнейших инструкций</p>
+                <button id="success-continue" class="px-6 py-2 rounded-lg ton-btn text-white font-medium">
+                    Продолжить
+                </button>
+            </div>
+        </main>
+
+        <!-- Features Section -->
+        <section class="mt-16 mb-20">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Почему стоит выбрать TON Cashback?</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 ton-gradient rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">До 5% кешбека</h3>
+                    <p class="text-gray-600">Получайте до 5% от суммы покупки новостройки в криптовалюте TON</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 ton-gradient rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Мгновенные выплаты</h3>
+                    <p class="text-gray-600">Выплаты происходят моментально благодаря блокчейну TON</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 ton-gradient rounded-lg flex items-center justify-center text-white text-xl mb-4">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Безопасность</h3>
+                    <p class="text-gray-600">Все транзакции защищены криптографией и смарт-контрактами</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 pt-8 pb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <i class="fab fa-telegram text-2xl mr-2 wallet-icon"></i>
+                    <span class="font-medium">TON Cashback</span>
+                </div>
+                <div class="flex space-x-6 mb-4 md:mb-0">
+                    <a href="#" class="text-gray-600 hover:text-blue-500"><i class="fab fa-telegram"></i></a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-gray-600 hover:text-blue-500"><i class="fab fa-facebook"></i></a>
+                </div>
+                <div class="text-sm text-gray-500">
+                    © 2023 TON Cashback. Все права защищены.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            const loginTab = document.getElementById('login-tab');
+            const registerTab = document.getElementById('register-tab');
+            const loginPage = document.getElementById('login-page');
+            const registerPage = document.getElementById('register-page');
+            const forgotPage = document.getElementById('forgot-page');
+            const successMessage = document.getElementById('success-message');
+            
+            // Links
+            const loginLink = document.getElementById('login-link');
+            const forgotPasswordLink = document.getElementById('forgot-password-link');
+            const backToLogin = document.getElementById('back-to-login');
+            const successContinue = document.getElementById('success-continue');
+            
+            // Forms
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const forgotForm = document.getElementById('forgot-form');
+            
+            // Toggle password visibility
+            document.querySelectorAll('[type="password"]').forEach(input => {
+                const eyeBtn = input.nextElementSibling;
+                if (eyeBtn && eyeBtn.tagName === 'BUTTON') {
+                    eyeBtn.addEventListener('click', function() {
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            this.innerHTML = '<i class="far fa-eye-slash"></i>';
+                        } else {
+                            input.type = 'password';
+                            this.innerHTML = '<i class="far fa-eye"></i>';
+                        }
+                    });
+                }
+            });
+            
+            // Switch to register tab
+            registerTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginTab.classList.remove('text-blue-500', 'border-blue-500');
+                loginTab.classList.add('text-gray-500');
+                registerTab.classList.add('text-blue-500', 'border-blue-500');
+                registerTab.classList.remove('text-gray-500');
+                
+                loginPage.classList.remove('visible');
+                loginPage.classList.add('hidden');
+                registerPage.classList.remove('hidden');
+                registerPage.classList.add('visible');
+                forgotPage.classList.add('hidden');
+                forgotPage.classList.remove('visible');
+                successMessage.classList.add('hidden');
+                successMessage.classList.remove('visible');
+            });
+            
+            // Switch to login tab
+            loginTab.addEventListener('click', function(e) {
+                e.preventDefault();
+                registerTab.classList.remove('text-blue-500', 'border-blue-500');
+                registerTab.classList.add('text-gray-500');
+                loginTab.classList.add('text-blue-500', 'border-blue-500');
+                loginTab.classList.remove('text-gray-500');
+                
+                registerPage.classList.remove('visible');
+                registerPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                loginPage.classList.add('visible');
+                forgotPage.classList.add('hidden');
+                forgotPage.classList.remove('visible');
+                successMessage.classList.add('hidden');
+                successMessage.classList.remove('visible');
+            });
+            
+            // Go to forgot password
+            forgotPasswordLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                loginPage.classList.remove('visible');
+                loginPage.classList.add('hidden');
+                forgotPage.classList.remove('hidden');
+                forgotPage.classList.add('visible');
+            });
+            
+            // Back to login from forgot
+            backToLogin.addEventListener('click', function(e) {
+                e.preventDefault();
+                forgotPage.classList.remove('visible');
+                forgotPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                loginPage.classList.add('visible');
+            });
+            
+            // From register to login
+            loginLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                registerTab.classList.remove('text-blue-500', 'border-blue-500');
+                registerTab.classList.add('text-gray-500');
+                loginTab.classList.add('text-blue-500', 'border-blue-500');
+                loginTab.classList.remove('text-gray-500');
+                
+                registerPage.classList.remove('visible');
+                registerPage.classList.add('hidden');
+                loginPage.classList.remove('hidden');
+                loginPage.classList.add('visible');
+            });
+            
+            // Form submissions
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Here would be login logic
+                console.log('Login submitted');
+            });
+            
+            registerForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Here would be registration logic
+                console.log('Register submitted');
+                
+                // Show success message
+                registerPage.classList.remove('visible');
+                registerPage.classList.add('hidden');
+                successMessage.classList.remove('hidden');
+                successMessage.classList.add('visible');
+            });
+            
+            forgotForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                // Here would be password reset logic
+                console.log('Forgot password submitted');
+                
+                // Show success message
+                forgotPage.classList.remove('visible');
+                forgotPage.classList.add('hidden');
+                successMessage.classList.remove('hidden');
+                successMessage.classList.add('visible');
+            });
+            
+            // Continue from success message
+            successContinue.addEventListener('click', function(e) {
+                e.preventDefault();
+                successMessage.classList.remove('visible');
+                successMessage.classList.add('hidden');
+                
+                // Return to login page
+                registerTab.classList.remove('text-blue-500', 'border-blue-500');
+                registerTab.classList.add('text-gray-500');
+                loginTab.classList.add('text-blue-500', 'border-blue-500');
+                loginTab.classList.remove('text-gray-500');
+                
+                loginPage.classList.remove('hidden');
+                loginPage.classList.add('visible');
+            });
+        });
+    </script>
+</body>
+</html>

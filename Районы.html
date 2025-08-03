@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>О нас | Кешбек за новостройки</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ton: {
+                            blue: '#0088cc',
+                            dark: '#222426',
+                            light: '#f5f5f5',
+                            accent: '#00a3e0',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #0088cc, #00a3e0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(0,136,204,0.1) 0%, rgba(0,163,224,0.1) 100%);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 136, 204, 0.15);
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-ton-light text-ton-dark">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-ton-blue flex items-center justify-center text-white font-bold text-xl">K</div>
+                <span class="ml-3 text-xl font-bold gradient-text">КешбекНовострой</span>
+            </a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Главная</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">О нас</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Как это работает</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Партнеры</a>
+                <a href="#" class="text-ton-blue font-medium">FAQ</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="#" class="hidden md:block px-4 py-2 rounded-md bg-ton-blue text-white hover:bg-opacity-90 transition-all">Войти</a>
+                <button class="md:hidden text-ton-dark">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 md:py-24">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">О нашем сервисе</h1>
+                <p class="text-xl text-gray-600 mb-8">Мы помогаем покупателям новостроек получать кешбек от 2,5% и более, делая процесс покупки жилья более выгодным и прозрачным.</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#" class="px-6 py-3 bg-ton-blue text-white rounded-md hover:bg-opacity-90 transition-all font-medium">Получить кешбек</a>
+                    <a href="#" class="px-6 py-3 bg-white text-ton-blue border border-ton-blue rounded-md hover:bg-ton-blue hover:bg-opacity-10 transition-all font-medium">Узнать больше</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold mb-8 text-center gradient-text">Наша миссия</h2>
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div>
+                        <p class="text-lg text-gray-600 mb-6">Мы создали сервис, который возвращает часть комиссии застройщика покупателям квартир в новостройках. Наша цель - сделать рынок недвижимости более справедливым и прозрачным.</p>
+                        <p class="text-lg text-gray-600">С 2020 года мы помогли более 5,000 семей сэкономить на покупке жилья, вернув им в общей сложности свыше 150 миллионов рублей.</p>
+                    </div>
+                    <div class="bg-ton-light rounded-xl p-6 flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-5xl font-bold gradient-text mb-2">2.5%+</div>
+                            <div class="text-gray-600">Средний кешбек</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-ton-light rounded-xl p-8 mb-12">
+                    <h3 class="text-2xl font-bold mb-4 gradient-text">Почему это выгодно?</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 text-ton-blue mt-1 mr-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="text-gray-600">Вы получаете реальные деньги на свой счет после покупки квартиры</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 text-ton-blue mt-1 mr-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="text-gray-600">Мы работаем только с проверенными застройщиками и ЖК</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 text-ton-blue mt-1 mr-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="text-gray-600">Процесс оформления кешбека прост и прозрачен</p>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 h-6 w-6 text-ton-blue mt-1 mr-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <p class="text-gray-600">Мы не влияем на стоимость квартиры - вы покупаете по стандартной цене</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-16 bg-ton-light">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-12 text-center gradient-text">Наша команда</h2>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition-all">
+                    <div class="h-48 bg-gradient-to-r from-ton-blue to-ton-accent flex items-center justify-center">
+                        <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center">
+                            <i class="fas fa-user text-3xl text-ton-blue"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Алексей Петров</h3>
+                        <p class="text-ton-blue mb-3">Основатель & CEO</p>
+                        <p class="text-gray-600 text-sm">Более 10 лет в риэлторском бизнесе. Основал сервис, чтобы сделать рынок честнее.</p>
+                    </div>
+                </div>
+                
+                <!-- Team Member 2 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition-all">
+                    <div class="h-48 bg-gradient-to-r from-ton-blue to-ton-accent flex items-center justify-center">
+                        <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center">
+                            <i class="fas fa-user text-3xl text-ton-blue"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Мария Смирнова</h3>
+                        <p class="text-ton-blue mb-3">Операционный директор</p>
+                        <p class="text-gray-600 text-sm">Отвечает за взаимодействие с застройщиками и клиентами.</p>
+                    </div>
+                </div>
+                
+                <!-- Team Member 3 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition-all">
+                    <div class="h-48 bg-gradient-to-r from-ton-blue to-ton-accent flex items-center justify-center">
+                        <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center">
+                            <i class="fas fa-user text-3xl text-ton-blue"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Дмитрий Иванов</h3>
+                        <p class="text-ton-blue mb-3">Технический директор</p>
+                        <p class="text-gray-600 text-sm">Разрабатывает платформу для удобного оформления кешбека.</p>
+                    </div>
+                </div>
+                
+                <!-- Team Member 4 -->
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm card-hover transition-all">
+                    <div class="h-48 bg-gradient-to-r from-ton-blue to-ton-accent flex items-center justify-center">
+                        <div class="w-24 h-24 rounded-full bg-white flex items-center justify-center">
+                            <i class="fas fa-user text-3xl text-ton-blue"></i>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-1">Екатерина Волкова</h3>
+                        <p class="text-ton-blue mb-3">Юрист</p>
+                        <p class="text-gray-600 text-sm">Обеспечивает юридическую чистоту всех сделок.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-12 text-center gradient-text">Наши партнеры</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+                <div class="bg-gray-100 h-24 rounded-lg flex items-center justify-center p-4">
+                    <div class="text-xl font-bold text-gray-500">ПИК</div>
+                </div>
+                <div class="bg-gray-100 h-24 rounded-lg flex items-center justify-center p-4">
+                    <div class="text-xl font-bold text-gray-500">Самолет</div>
+                </div>
+                <div class="bg-gray-100 h-24 rounded-lg flex items-center justify-center p-4">
+                    <div class="text-xl font-bold text-gray-500">Эталон</div>
+                </div>
+                <div class="bg-gray-100 h-24 rounded-lg flex items-center justify-center p-4">
+                    <div class="text-xl font-bold text-gray-500">ГК ФСК</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-gradient-to-r from-ton-blue to-ton-accent text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Готовы получить кешбек за новостройку?</h2>
+                <p class="text-xl mb-8 opacity-90">Зарегистрируйтесь и узнайте, сколько вы можете вернуть при покупке квартиры в вашем городе.</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#" class="px-6 py-3 bg-white text-ton-blue rounded-md hover:bg-opacity-90 transition-all font-medium">Начать сейчас</a>
+                    <a href="#" class="px-6 py-3 bg-transparent border-2 border-white text-white rounded-md hover:bg-white hover:bg-opacity-10 transition-all font-medium">Узнать подробности</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 gradient-text">Часто задаваемые вопросы</h1>
+                <p class="text-xl text-gray-600">Найдите ответы на популярные вопросы о нашем сервисе кешбеков за новостройки.</p>
+            </div>
+            
+            <div class="max-w-3xl mx-auto space-y-4">
+                <!-- General Questions -->
+                <h2 class="text-2xl font-bold mt-8 mb-4 gradient-text">Общие вопросы</h2>
+                
+                <div class="bg-ton-light rounded-xl p-6 shadow-sm">
+                    <button class="flex justify-between items-center w-full text-left" onclick="toggleFAQ(1)">
+                        <h3 class="text-lg font-medium">Что такое кешбек за новостройку?</h3>
+                        <i class="fas fa-chevron-down text-ton-blue transition-transform" id="faq-icon-1"></i>
+                    </button>
+                    <div class="mt-3 text-gray-600 hidden" id="faq-content-1">
+                        <p>Кешбек за новостройку - это возврат части комиссии, которую застройщик платит агентам по недвижимости. Мы помогаем получить эту комиссию вам напрямую, без посредников. В среднем это составляет от 2,5% до 5% от стоимости квартиры.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-ton-light rounded-xl p-6 shadow-sm">
+                    <button class="flex justify-between items-center w-full text-left" onclick="toggleFAQ(2)">
+                        <h3 class="text-lg font-medium">Как работает ваш сервис?</h3>
+                        <i class="fas fa-chevron-down text-ton-blue transition-transform" id="faq-icon-2"></i>
+                    </button>
+                    <div class="mt-3 text-gray-600 hidden" id="faq-content-2">
+                        <ol class="list-decimal pl-5 space-y-2">
+                            <li>Вы регистрируетесь на нашем сайте</li>
+                            <li>Выбираете интересующую новостройку</li>
+                            <li>Мы оформляем вас как нашего клиента у застройщика</li>
+                            <li>После покупки квартиры получаете кешбек на банковский счет</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <!-- Payment Questions -->
+                <h2 class="text-2xl font-bold mt-8 mb-4 gradient-text">Оплата и выплаты</h2>
+                
+                <div class="bg-ton-light rounded-xl p-6 shadow-sm">
+                    <button class="flex justify-between items-center w-full text-left" onclick="toggleFAQ(3)">
+                        <h3 class="text-lg font-medium">Когда я получу кешбек?</h3>
+                        <i class="fas fa-chevron-down text-ton-blue transition-transform" id="faq-icon-3"></i>
+                    </button>
+                    <div class="mt-3 text-gray-600 hidden" id="faq-content-3">
+                        <p>Выплата кешбека происходит после:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Полной оплаты квартиры</li>
+                            <li>Оформления права собственности</li>
+                            <li>Завершения проверки документов (до 10 рабочих дней)</li>
+                        </ul>
+                        <p class="mt-2">В среднем весь процесс занимает от 1 до 3 месяцев после покупки.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-ton-light rounded-xl p-6 shadow-sm">
+                    <button class="flex justify-between items-center w-full text-left" onclick="toggleFAQ(4)">
+                        <h3 class="text-lg font-medium">Какой максимальный кешбек я могу получить?</h3>
+                        <i class="fas fa-chevron-down text-ton-blue transition-transform" id="faq-icon-4"></i>
+                    </button>
+                    <div class="mt-3 text-gray-600 hidden" id="faq-content-4">
+                        <p>Размер кешбека зависит от:</p>
+                        <ul class="list-disc pl-5 mt-2 space-y-1">
+                            <li>Застройщика (от 2,5% до 7%)</li>
+                            <li>Объекта недвижимости</li>
+                            <li>Суммы сделки (возможны бонусы за крупные покупки)</li>
+                            <li>Активных специальных предложений</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Technical Questions -->
+                <h2 class="text-2xl font-bold mt-8 mb-4 gradient-text">Работа сервиса</h2>
+                
+                <div class="bg-ton-light rounded-xl p-6 shadow-sm">
+                    <button class="flex justify-between items-center w-full text-left" onclick="toggleFAQ(5)">
+                        <h3 class="text-lg font-medium">Нужно ли платить за ваш сервис?</h3>
+                        <i class="fas fa-chevron-down text-ton-blue transition-transform" id="faq-icon-5"></i>
+                    </button>
+                    <div class="mt-3 text-gray-600 hidden" id="faq-content-5">
+                        <p>Наш сервис абсолютно бесплатен для покупателей. Мы получаем комиссию от застройщиков только после успешного завершения сделки.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-ton-light rounded-xl p-6 shadow-sm">
+                    <button class="flex justify-between items-center w-full text-left" onclick="toggleFAQ(6)">
+                        <h3 class="text-lg font-medium">Работаете ли вы по всей России?</h3>
+                        <i class="fas fa-chevron-down text-ton-blue transition-transform" id="faq-icon-6"></i>
+                    </button>
+                    <div class="mt-3 text-gray-600 hidden" id="faq-content-6">
+                        <p>Да, мы работаем со всеми крупными городами России, где представлены наши партнеры-застройщики. На текущий момент это более 30 городов, включая Москву, Санкт-Петербург, Казань, Сочи, Екатеринбург и другие.</p>
+                    </div>
+                </div>
+                
+                <!-- Contact CTA -->
+                <div class="bg-gradient-to-r from-ton-blue to-ton-accent rounded-xl p-8 mt-8 text-white">
+                    <h3 class="text-xl font-bold mb-4">Не нашли ответ на свой вопрос?</h3>
+                    <p class="mb-6">Наша служба поддержки готова помочь вам с любым вопросом.</p>
+                    <a href="tel:+78001234567" class="px-6 py-3 bg-white text-ton-blue rounded-md hover:bg-opacity-90 transition-all font-medium inline-block">
+                        <i class="fas fa-phone mr-2"></i> Позвонить нам
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-ton-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <a href="#" class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-ton-blue flex items-center justify-center text-white font-bold text-xl">K</div>
+                        <span class="ml-3 text-xl font-bold text-white">КешбекНовострой</span>
+                    </a>
+                    <p class="text-gray-400">Сервис кешбека при покупке новостроек от 2,5%</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-4">Сервис</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Как это работает</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Калькулятор кешбека</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Партнеры</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Отзывы</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-4">Компания</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">О нас</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Контакты</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Карьера</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Блог</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-4">Контакты</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                            <a href="mailto:info@cashbacknovostroy.ru" class="text-gray-400 hover:text-white transition-all">info@cashbacknovostroy.ru</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone mr-2 text-gray-400"></i>
+                            <a href="tel:+78001234567" class="text-gray-400 hover:text-white transition-all">8 (800) 123-45-67</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                            <span class="text-gray-400">Москва, ул. Примерная, 15</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 mb-4 md:mb-0">© 2023 КешбекНовострой. Все права защищены.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-500 hover:text-white transition-all">
+                        <i class="fab fa-telegram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-all">
+                        <i class="fab fa-vk text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-all">
+                        <i class="fab fa-youtube text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle FAQ items
+        function toggleFAQ(id) {
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+            
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+        
+        // Mobile menu toggle would be implemented here
+    </script>
+</body>
+</html>

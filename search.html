@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Real Estate - Поиск недвижимости</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ton-blue': '#0088cc',
+                        'ton-dark': '#1E1E1E',
+                        'ton-light': '#F5F5F5',
+                        'ton-secondary': '#6C757D',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F5;
+        }
+        
+        .checkbox-custom {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #0088cc;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .checkbox-custom:checked {
+            background-color: #0088cc;
+        }
+        
+        .checkbox-custom:checked::after {
+            content: '\2713';
+            font-size: 12px;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .custom-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #0088cc;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .custom-range::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #0088cc;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+            z-index: 1;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-ton-light">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center mb-6">
+            <div class="bg-ton-blue p-2 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </div>
+            <h1 class="ml-3 text-2xl font-bold text-ton-dark">TON Real Estate</h1>
+        </div>
+        
+        <!-- Main Search Form -->
+        <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <input type="text" placeholder="Город, адрес, ЖК или район" class="w-full p-3 border border-gray-300 rounded-lg focus:border-ton-blue focus:ring-1 focus:ring-ton-blue pl-10">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-ton-secondary"></i>
+                    </div>
+                    
+                    <!-- Type Dropdown -->
+                    <div class="relative dropdown">
+                        <button class="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center bg-white">
+                            <span>Тип недвижимости</span>
+                            <i class="fas fa-chevron-down text-ton-secondary"></i>
+                        </button>
+                        <div class="dropdown-menu mt-1 p-4">
+                            <div class="space-y-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom">
+                                    <span>Квартиры</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom">
+                                    <span>Дома</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom">
+                                    <span>Коммерческая</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom">
+                                    <span>Земельные участки</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Price Range -->
+                    <div class="relative dropdown">
+                        <button class="w-full p-3 border border-gray-300 rounded-lg flex justify-between items-center bg-white">
+                            <span>Цена</span>
+                            <i class="fas fa-chevron-down text-ton-secondary"></i>
+                        </button>
+                        <div class="dropdown-menu mt-1 p-4">
+                            <div class="mb-3">
+                                <label class="block text-sm font-medium text-ton-dark mb-1">Диапазон цен, ₽</label>
+                                <div class="flex space-x-2 items-center">
+                                    <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                    <span>-</span>
+                                    <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+                            </div>
+                            <input type="range" min="0" max="100000000" value="5000000" class="w-full custom-range">
+                            <div class="flex justify-between text-xs text-ton-secondary mt-1">
+                                <span>0 ₽</span>
+                                <span>100 млн ₽</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Button -->
+                    <button class="bg-ton-blue text-white p-3 rounded-lg hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+                        <i class="fas fa-search mr-2"></i>
+                        <span>Найти</span>
+                    </button>
+                </div>
+                
+                <!-- Advanced Filters Toggle -->
+                <div class="flex justify-center mb-4">
+                    <button id="advancedToggle" class="text-ton-blue flex items-center">
+                        <span>Дополнительные параметры</span>
+                        <i class="fas fa-chevron-down ml-2"></i>
+                    </button>
+                </div>
+                
+                <!-- Advanced Filters (Hidden by default) -->
+                <div id="advancedFilters" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Rooms -->
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-ton-dark mb-2">Количество комнат</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-100">1</button>
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-100">2</button>
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-100">3</button>
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-100">4</button>
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-100">5+</button>
+                            <button class="p-2 border border-gray-300 rounded hover:bg-gray-100">Студия</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Square -->
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-ton-dark mb-2">Площадь, м²</label>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs text-ton-secondary mb-1">Общая</label>
+                                <div class="flex space-x-2 items-center">
+                                    <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                    <span>-</span>
+                                    <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-ton-secondary mb-1">Жилая</label>
+                                <div class="flex space-x-2 items-center">
+                                    <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                    <span>-</span>
+                                    <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-ton-secondary mb-1">Кухня</label>
+                                <div class="flex space-x-2 items-center">
+                                    <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                    <span>-</span>
+                                    <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Options -->
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-ton-dark mb-2">Дополнительно</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Вторичка</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Новостройка</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Ипотека</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Рассрочка</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">С мебелью</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">С ремонтом</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Floor -->
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-ton-dark mb-2">Этаж</label>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-xs text-ton-secondary mb-1">Этаж</label>
+                                <div class="flex space-x-2 items-center">
+                                    <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                    <span>-</span>
+                                    <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-ton-secondary mb-1">Этажей в доме</label>
+                                <div class="flex space-x-2 items-center">
+                                    <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                    <span>-</span>
+                                    <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom">
+                                    <span class="text-sm">Только последний этаж</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" class="checkbox-custom">
+                                    <span class="text-sm">Не первый этаж</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- House Type -->
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-ton-dark mb-2">Тип дома</label>
+                        <div class="space-y-2">
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Панельный</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Монолитный</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Кирпичный</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Блочный</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer">
+                                <input type="checkbox" class="checkbox-custom">
+                                <span class="text-sm">Деревянный</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Year Built -->
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <label class="block text-sm font-medium text-ton-dark mb-2">Год постройки</label>
+                        <div>
+                            <label class="block text-xs text-ton-secondary mb-1">Год</label>
+                            <div class="flex space-x-2 items-center">
+                                <input type="number" placeholder="от" class="w-full p-2 border border-gray-300 rounded">
+                                <span>-</span>
+                                <input type="number" placeholder="до" class="w-full p-2 border border-gray-300 rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Selected Filters -->
+            <div class="bg-ton-light px-6 py-3 border-t border-gray-200">
+                <div class="flex flex-wrap gap-2">
+                    <div class="bg-white border border-ton-blue text-ton-blue rounded-full px-3 py-1 text-sm flex items-center">
+                        <span>Квартиры</span>
+                        <button class="ml-1 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="bg-white border border-ton-blue text-ton-blue rounded-full px-3 py-1 text-sm flex items-center">
+                        <span>Цена: до 5 млн ₽</span>
+                        <button class="ml-1 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="bg-white border border-ton-blue text-ton-blue rounded-full px-3 py-1 text-sm flex items-center">
+                        <span>2 комнаты</span>
+                        <button class="ml-1 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <button class="text-ton-blue text-sm ml-auto">Очистить все</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Results Header -->
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-bold text-ton-dark">Найдено 125 объектов</h2>
+            <div class="flex space-x-2">
+                <button class="p-2 border border-gray-300 rounded-lg bg-white">
+                    <i class="fas fa-list text-ton-secondary"></i>
+                </button>
+                <button class="p-2 border border-gray-300 rounded-lg bg-white">
+                    <i class="fas fa-map-marker-alt text-ton-secondary"></i>
+                </button>
+                <div class="relative">
+                    <button class="p-2 border border-gray-300 rounded-lg bg-white flex items-center">
+                        <span class="mr-2 text-ton-secondary">Сортировка</span>
+                        <i class="fas fa-chevron-down text-ton-secondary"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Results -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+            <!-- Property Card 1 -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Apartment" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                        <i class="far fa-heart text-ton-blue text-lg"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-ton-dark">Квартира-студия, 30 м²</h3>
+                        <span class="text-lg font-bold text-ton-blue">3.2 млн ₽</span>
+                    </div>
+                    <p class="text-ton-secondary text-sm mb-3">Краснодар, ЖК «Орбита», ул. Красная, 154</p>
+                    <div class="flex items-center space-x-2 text-sm text-ton-secondary mb-3">
+                        <span><i class="fas fa-bed mr-1"></i> 1</span>
+                        <span><i class="fas fa-layer-group mr-1"></i> 5/9 эт.</span>
+                        <span><i class="fas fa-expand mr-1"></i> 30 м²</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-ton-blue bg-blue-50 px-2 py-1 rounded">Новостройка</span>
+                        <button class="bg-ton-blue text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-700 transition duration-300">Подробнее</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Property Card 2 -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1598228723793-59ae1d7c8b4d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Apartment" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                        <i class="far fa-heart text-ton-blue text-lg"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-ton-dark">2-комнатная, 56 м²</h3>
+                        <span class="text-lg font-bold text-ton-blue">4.8 млн ₽</span>
+                    </div>
+                    <p class="text-ton-secondary text-sm mb-3">Краснодар, мкр. Гидростроителей, ул. Трудовой Славы</p>
+                    <div class="flex items-center space-x-2 text-sm text-ton-secondary mb-3">
+                        <span><i class="fas fa-bed mr-1"></i> 2</span>
+                        <span><i class="fas fa-layer-group mr-1"></i> 3/5 эт.</span>
+                        <span><i class="fas fa-expand mr-1"></i> 56 м²</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-ton-blue bg-blue-50 px-2 py-1 rounded">С ремонтом</span>
+                        <button class="bg-ton-blue text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-700 transition duration-300">Подробнее</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Property Card 3 -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Apartment" class="w-full h-48 object-cover">
+                    <div class="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md">
+                        <i class="far fa-heart text-ton-blue text-lg"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-lg font-bold text-ton-dark">3-комнатная, 85 м²</h3>
+                        <span class="text-lg font-bold text-ton-blue">6.7 млн ₽</span>
+                    </div>
+                    <p class="text-ton-secondary text-sm mb-3">Краснодар, Центральный округ, ул. Красноармейская</p>
+                    <div class="flex items-center space-x-2 text-sm text-ton-secondary mb-3">
+                        <span><i class="fas fa-bed mr-1"></i> 3</span>
+                        <span><i class="fas fa-layer-group mr-1"></i> 7/9 эт.</span>
+                        <span><i class="fas fa-expand mr-1"></i> 85 м²</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-ton-blue bg-blue-50 px-2 py-1 rounded">Вторичка</span>
+                        <button class="bg-ton-blue text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-700 transition duration-300">Подробнее</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Map View Toggle -->
+        <div class="bg-white rounded-xl shadow-md p-4 mb-8 hidden">
+            <div id="map" style="height: 400px;" class="rounded-lg bg-gray-200 flex items-center justify-center">
+                <span class="text-ton-secondary">Карта с объектами недвижимости</span>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="flex justify-center">
+            <nav class="inline-flex items-center space-x-1 rounded-lg border border-gray-300 bg-white p-2">
+                <button class="rounded-lg p-2 text-ton-blue hover:bg-blue-50">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="rounded-lg px-3 py-1 font-medium text-white bg-ton-blue">1</button>
+                <button class="rounded-lg px-3 py-1 font-medium text-ton-blue hover:bg-blue-50">2</button>
+                <button class="rounded-lg px-3 py-1 font-medium text-ton-blue hover:bg-blue-50">3</button>
+                <span class="px-3 py-1 text-ton-secondary">...</span>
+                <button class="rounded-lg px-3 py-1 font-medium text-ton-blue hover:bg-blue-50">12</button>
+                <button class="rounded-lg p-2 text-ton-blue hover:bg-blue-50">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        // Toggle advanced filters
+        document.getElementById('advancedToggle').addEventListener('click', function() {
+            const advancedFilters = document.getElementById('advancedFilters');
+            const icon = this.querySelector('i');
+            
+            if (advancedFilters.classList.contains('hidden')) {
+                advancedFilters.classList.remove('hidden');
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                advancedFilters.classList.add('hidden');
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+        });
+        
+        // Dropdown functionality for mobile
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+            const button = dropdown.querySelector('button');
+            
+            button.addEventListener('click', function() {
+                if (window.innerWidth < 768) {
+                    const menu = dropdown.querySelector('.dropdown-menu');
+                    
+                    if (menu.style.display === 'block') {
+                        menu.style.display = 'none';
+                    } else {
+                        menu.style.display = 'block';
+                    }
+                }
+            });
+        });
+        
+        // Room selection
+        document.querySelectorAll('#advancedFilters .grid button').forEach(button => {
+            button.addEventListener('click', function() {
+                const isSelected = this.classList.contains('bg-ton-blue', 'text-white');
+                
+                if (isSelected) {
+                    this.classList.remove('bg-ton-blue', 'text-white');
+                    this.classList.add('border-gray-300', 'hover:bg-gray-100');
+                } else {
+                    this.classList.add('bg-ton-blue', 'text-white');
+                    this.classList.remove('border-gray-300', 'hover:bg-gray-100');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

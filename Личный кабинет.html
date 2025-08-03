@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clickback - Личный кабинет</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ton-primary: #0088cc;
+            --ton-secondary: #33aadd;
+            --ton-light: #e6f4ff;
+            --ton-dark: #001a33;
+            --ton-text: #1a1a1a;
+            --ton-gray: #f5f5f5;
+            --ton-border: #e0e0e0;
+            --ton-success: #00b341;
+            --ton-warning: #ff9c00;
+            --ton-error: #ff2d55;
+        }
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background-color: #ffffff;
+            color: var(--ton-text);
+            line-height: 1.5;
+        }
+        .ton-bg {
+            background-color: var(--ton-primary);
+        }
+        .ton-text {
+            color: var(--ton-text);
+        }
+        .ton-card {
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--ton-border);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+        }
+        .ton-input {
+            background: white;
+            border: 1px solid var(--ton-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+        }
+        .ton-input:focus {
+            border-color: var(--ton-primary);
+            box-shadow: 0 0 0 2px rgba(0, 136, 204, 0.2);
+        }
+        .ton-button {
+            background: var(--ton-primary);
+            color: white;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .ton-button:hover {
+            background: #0077b3;
+        }
+        .ton-button-secondary {
+            background: white;
+            color: var(--ton-primary);
+            border: 1px solid var(--ton-primary);
+        }
+        .ton-tab {
+            padding: 12px 16px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .ton-tab-active {
+            color: var(--ton-primary);
+            border-bottom-color: var(--ton-primary);
+        }
+        .ton-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 16px;
+            font-weight: 500;
+        }
+        .ton-badge-success {
+            background: rgba(0, 179, 65, 0.1);
+            color: var(--ton-success);
+        }
+        .ton-badge-warning {
+            background: rgba(255, 156, 0, 0.1);
+            color: var(--ton-warning);
+        }
+        .ton-badge-error {
+            background: rgba(255, 45, 85, 0.1);
+            color: var(--ton-error);
+        }
+        /* Notifications */
+        .ton-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            max-width: 320px;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            border-left: 4px solid var(--ton-primary);
+        }
+        .ton-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        /* Property Card hover effect */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Notifications dropdown */
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 16px;
+            height: 16px;
+            background-color: var(--ton-error);
+            border-radius: 50%;
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white border-b border-gray-100">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="ton-bg w-9 h-9 rounded-lg flex items-center justify-center text-white font-bold text-lg">CB</div>
+                    <span class="text-xl font-semibold ton-text">Clickback</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="ton-text hover:text-blue-600 transition">Главная</a>
+                    <a href="#" class="ton-text hover:text-blue-600 transition">Каталог ЖК</a>
+                    <a href="#" class="ton-text hover:text-blue-600 transition">Районы</a>
+                    <a href="#" class="ton-text hover:text-blue-600 transition">Как это работает</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="notifications-btn" class="relative p-1 rounded-full text-gray-400 hover:text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        </button>
+                        <div id="notifications-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                            <div class="px-4 py-2 border-b border-gray-100">
+                                <h3 class="font-medium">Уведомления</h3>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                                    <div class="flex items-start">
+                                        <img src="https://source.unsplash.com/random/100x100/?profile" class="w-10 h-10 rounded-full mr-3" alt="Profile">
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium">Новое сообщение от поддержки</p>
+                                            <p class="text-xs text-gray-500 mt-1">Ваша заявка #CB-230510 была одобрена</p>
+                                            <span class="text-xs text-gray-400 mt-1 block">15 минут назад</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-50 border-b border-gray-50">
+                                    <div class="flex items-start">
+                                        <div class="w-10 h-10 rounded-full mr-3 flex items-center justify-center bg-blue-100 text-blue-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p class="text-sm font-medium">Напоминание: вебинар сегодня</p>
+                                            <p class="text-xs text-gray-500 mt-1">Как правильно оформить документы</p>
+                                            <span class="text-xs text-gray-400 mt-1 block">2 часа назад</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="px-4 py-2 border-t border-gray-100 text-center">
+                                <a href="#" class="text-sm font-medium text-blue-600 hover:text-blue-800">Показать все</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center space-x-1">
+                            <img src="https://picsum.photos/100/100?random=2" class="w-8 h-8 rounded-full object-cover border-2 border-blue-100" alt="Иван Иванов">
+                        </button>
+                    </div>
+                    <button class="px-4 py-2 bg-white border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Sidebar -->
+            <aside class="lg:col-span-3 space-y-6">
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <div class="flex items-center space-x-4 mb-6">
+                        <img src="https://i.pravatar.cc/100?img=5" class="w-16 h-16 rounded-full object-cover border-2 border-blue-100" alt="Иван Иванов">
+                        <div>
+                            <h3 class="font-semibold text-lg">Иван Иванов</h3>
+                            <p class="text-sm text-gray-500">Клиент с 15.05.2023</p>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <button onclick="changeTab('profile')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 text-left">
+                            <span class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Профиль</span>
+                            </span>
+                        </button>
+                        <button onclick="changeTab('applications')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-blue-50 text-blue-600 font-medium text-left">
+                            <span class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Мои заявки</span>
+                            </span>
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-md">3</span>
+                        </button>
+                        <button onclick="changeTab('calculator')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 text-left">
+                            <span class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 100-2H7z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Калькулятор кэшбэка</span>
+                            </span>
+                        </button>
+                        <button onclick="changeTab('search')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 text-left">
+                            <span class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Поиск недвижимости</span>
+                            </span>
+                        </button>
+                        <button onclick="changeTab('favorites')" class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 text-left">
+                            <span class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Избранное</span>
+                            </span>
+                        </button>
+                        <button class="w-full flex items-center justify-between px-4 py-3 rounded-lg hover:bg-gray-50 text-left">
+                            <span class="flex items-center space-x-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                </svg>
+                                <span>Уведомления</span>
+                            </span>
+                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2 py-0.5 rounded-md">1</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <h3 class="font-semibold mb-4">Быстрые действия</h3>
+                    <button onclick="toggleApplicationModal()" class="w-full gradient-bg text-white py-3 px-4 rounded-lg flex items-center justify-center space-x-2 hover:brightness-95 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Подать новую заявку</span>
+                    </button>
+                </div>
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <h3 class="font-semibold mb-4">Ваш кэшбэк</h3>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-500">Ожидаемый</span>
+                        <span class="font-medium gradient-text">124 500 ₽</span>
+                    </div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-gray-500">Получено</span>
+                        <span class="font-medium">45 000 ₽</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
+                        <div class="gradient-bg h-2 rounded-full" style="width: 36%"></div>
+                    </div>
+                    <button class="text-sm gradient-text font-medium">
+                        Подробнее о выплатах
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Panel -->
+            <div class="lg:col-span-9 space-y-6">
+                <!-- Profile Tab -->
+                <div id="profile-tab" class="bg-white rounded-xl border border-gray-100 p-6">
+                <div class="bg-white rounded-xl border border-gray-100 p-6">
+                    <h2 class="text-xl font-semibold mb-6">Профиль</h2>
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Фамилия</label>
+                                <input type="text" id="last-name" value="Иванов" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Имя</label>
+                                <input type="text" id="first-name" value="Иван" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Отчество</label>
+                                <input type="text" id="middle-name" value="Иванович" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Телефон</label>
+                                <input type="tel" id="phone" value="+7 (123) 456-78-90" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" value="ivan.ivanov@example.com" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                        </div>
+                        <div class="pt-4">
+                            <h3 class="text-lg font-medium mb-3">Смена пароля</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Текущий пароль</label>
+                                    <input type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Новый пароль</label>
+                                    <input type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Подтвердите пароль</label>
+                                    <input type="password" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-end pt-4">
+                            <button type="button" class="px-6 py-3 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 mr-3">
+                                Отменить
+                            </button>
+                            <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                Сохранить изменения
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+                <!-- Applications Tab (Visible by default) -->
+                <div id="applications-tab" class="hidden bg-white rounded-xl border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-semibold">Мои заявки</h2>
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                                Фильтры
+                            </button>
+                            <button class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                </svg>
+                                Сортировка
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Application Card 1 -->
+                        <div class="card-hover border border-gray-100 rounded-xl p-5 hover:shadow-sm">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-md overflow-hidden">
+                                        <img src="https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80" alt="ЖК" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium">ЖК "Небесный берег"</h3>
+                                        <p class="text-sm text-gray-500">2-комн. кв., 54 м²</p>
+                                        <p class="text-sm text-gray-500">Прикубанский округ, ул. Жмайлова</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end mt-3 md:mt-0">
+                                    <span class="text-lg font-semibold">9 200 000 ₽</span>
+                                    <span class="text-sm font-medium gradient-text">Кэшбэк: 368 000 ₽</span>
+                                    <div class="px-3 py-1 rounded-full text-sm status-approved mt-2">Одобрена</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                                <div class="text-sm text-gray-500">Номер заявки: #CB-230510</div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                                        Подробнее
+                                    </button>
+                                    <button class="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 text-sm">
+                                        Связаться
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Application Card 2 -->
+                        <div class="card-hover border border-gray-100 rounded-xl p-5 hover:shadow-sm">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-md overflow-hidden">
+                                        <img src="https://i.imgur.com/Jkq7J7m.jpg" alt="ЖК" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium">ЖК "Солнечный город"</h3>
+                                        <p class="text-sm text-gray-500">1-комн. кв., 32 м²</p>
+                                        <p class="text-sm text-gray-500">Центральный округ, ул. Красная</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end mt-3 md:mt-0">
+                                    <span class="text-lg font-semibold">6 750 000 ₽</span>
+                                    <span class="text-sm font-medium gradient-text">Кэшбэк: 270 000 ₽</span>
+                                    <div class="px-3 py-1 rounded-full text-sm status-processing">В обработке</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                                <div class="text-sm text-gray-500">Номер заявки: #CB-230428</div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                                        Подробнее
+                                    </button>
+                                    <button class="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 text-sm">
+                                        Связаться
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Application Card 3 -->
+                        <div class="card-hover border border-gray-100 rounded-xl p-5 hover:shadow-sm">
+                            <div class="flex flex-col md:flex-row md:justify-between md:items-center">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 rounded-md overflow-hidden">
+                                        <img src="https://i.imgur.com/8jJ3Y7H.jpg" alt="ЖК" class="w-full h-full object-cover">
+                                    </div>
+                                    <div>
+                                        <h3 class="font-medium">ЖК "Европейский"</h3>
+                                        <p class="text-sm text-gray-500">3-комн. кв., 78 м²</p>
+                                        <p class="text-sm text-gray-500">Западный округ, ул. Ставропольская</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-end mt-3 md:mt-0">
+                                    <span class="text-lg font-semibold">14 500 000 ₽</span>
+                                    <span class="text-sm font-medium gradient-text">Кэшбэк: 580 000 ₽</span>
+                                    <div class="px-3 py-1 rounded-full text-sm status-rejected">Отклонена</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                                <div class="text-sm text-gray-500">Номер заявки: #CB-230315</div>
+                                <div class="flex space-x-2">
+                                    <button class="px-3 py-1.5 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 text-sm">
+                                        Подробнее
+                                    </button>
+                                    <button class="px-3 py-1.5 bg-white border border-blue-200 text-blue-600 rounded-lg hover:bg-blue-50 text-sm">
+                                        Подать снова
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-center mt-6">
+                        <nav class="flex items-center space-x-1">
+                            <button class="px-3 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button class="px-3 py-1 rounded border border-gray-200 bg-blue-50 text-blue-600">1</button>
+                            <button class="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50">2</button>
+                            <button class="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50">3</button>
+                            <span class="px-2">...</span>
+                            <button class="px-3 py-1 rounded border border-gray-200 hover:bg-gray-50">5</button>
+                            <button class="px-3 py-1 rounded border border-gray-200 text-gray-500 hover:bg-gray-50">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+                
+                <!-- Calculator Tab (Hidden by default) -->
+                <div id="calculator-tab" class="hidden bg-white rounded-xl border border-gray-100 p-6">
+                    <h2 class="text-xl font-semibold mb-6">Калькулятор кэшбэка</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Стоимость квартиры, ₽</label>
+                                <div class="relative">
+                                    <input type="text" value="8000000" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <span class="text-gray-500">₽</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Процент кэшбэка</label>
+                                <select class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                    <option>1%</option>
+                                    <option>2%</option>
+                                    <option selected>3%</option>
+                                    <option>4%</option>
+                                    <option>5%</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Тип оплаты</label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button class="flex items-center justify-center px-4 py-3 border rounded-lg hover:border-blue-300">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                        </svg>
+                                        Наличные
+                                    </button>
+                                    <button class="flex items-center justify-center px-4 py-3 border border-blue-200 bg-blue-50 text-blue-600 rounded-lg">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        Ипотека
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="pt-4">
+                                <button class="w-full gradient-bg text-white py-3 px-4 rounded-lg hover:brightness-95 transition flex items-center justify-center space-x-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd" />
+                                    </svg>
+                                    <span>Оформить заявку</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-gray-50 rounded-xl p-6">
+                                <h3 class="font-medium text-lg mb-4">Ваша выгода</h3>
+                                <div class="space-y-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Стоимость квартиры:</span>
+                                        <span class="font-medium">8 000 000 ₽</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Процент кэшбэка (3%):</span>
+                                        <span class="font-medium gradient-text">240 000 ₽</span>
+                                    </div>
+                                    <div class="border-t border-gray-200 my-2"></div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-600">Итоговая стоимость:</span>
+                                        <span class="font-medium">7 760 000 ₽</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-6">
+                                    <h3 class="font-medium text-lg mb-4">Пример выплат по ипотеке</h3>
+                                    <div class="space-y-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Первый взнос:</span>
+                                            <span class="font-medium">240 000 ₽ (из кэшбэка)</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600">Ежемесячный платёж:</span>
+                                            <span class="font-medium">~65 000 ₽</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Favorites Tab (Hidden by default) -->
+                <div id="favorites-tab" class="hidden bg-white rounded-xl border border-gray-100 p-6">
+                    <h2 class="text-xl font-semibold mb-6">Избранные ЖК</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Favorite 1 -->
+                        <div class="card-hover border border-gray-100 rounded-lg overflow-hidden hover:shadow-sm">
+                            <div class="relative">
+                                <img src="https://i.imgur.com/5LE0adM.jpg" alt="ЖК 'Небесный берег'" class="w-full h-40 object-cover">
+                                <button class="absolute top-3 right-3 p-2 bg-white bg-opacity-80 rounded-full text-red-500 hover:bg-opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium mb-1">ЖК "Небесный берег"</h3>
+                                <p class="text-sm text-gray-500 mb-2">Прикубанский округ, ул. Жмайлова</p>
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <span class="block text-sm text-gray-500">Цена от</span>
+                                        <span class="font-medium">7 200 000 ₽</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-sm text-gray-500">Кэшбэк</span>
+                                        <span class="font-medium gradient-text">до 5%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Favorite 2 -->
+                        <div class="card-hover border border-gray-100 rounded-lg overflow-hidden hover:shadow-sm">
+                            <div class="relative">
+                                <img src="https://i.imgur.com/Jkq7J7m.jpg" alt="ЖК 'Солнечный город'" class="w-full h-40 object-cover">
+                                <button class="absolute top-3 right-3 p-2 bg-white bg-opacity-80 rounded-full text-red-500 hover:bg-opacity-100">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-medium mb-1">ЖК "Солнечный город"</h3>
+                                <p class="text-sm text-gray-500 mb-2">Центральный округ, ул. Красная</p>
+                                <div class="flex justify-between items-end">
+                                    <div>
+                                        <span class="block text-sm text-gray-500">Цена от</span>
+                                        <span class="font-medium">6 500 000 ₽</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-sm text-gray-500">Кэшбэк</span>
+                                        <span class="font-medium gradient-text">до 4%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 text-center text-gray-500">
+                        Вы пока не добавили ни одного жилого комплекса в избранное
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Application Modal (Hidden by default) -->
+    <div id="application-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-semibold">Новая заявка на кэшбэк</h3>
+                    <button onclick="toggleApplicationModal()" class="text-gray-400 hover:text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <form class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Выберите ЖК</label>
+                        <select class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                            <option>ЖК "Небесный берег"</option>
+                            <option>ЖК "Солнечный город"</option>
+                            <option>ЖК "Европейский"</option>
+                            <option>ЖК "Городской сад"</option>
+                            <option>ЖК "Речной"</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Тип недвижимости</label>
+                            <select class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                <option>Квартира</option>
+                                <option>Апартаменты</option>
+                                <option>Таунхаус</option>
+                                <option>Дом</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Количество комнат</label>
+                            <select class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                <option>1</option>
+                                <option>2</option>
+                                <option selected>3</option>
+                                <option>4+</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Площадь, м²</label>
+                            <input type="text" value="78" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Стоимость, ₽</label>
+                            <div class="relative">
+                                <input type="text" value="14 500 000" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200">
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <span class="text-gray-500">₽</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Тип сделки</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button type="button" class="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-lg hover:border-blue-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                </svg>
+                                Наличные
+                            </button>
+                            <button type="button" class="flex items-center justify-center px-4 py-3 border border-blue-200 bg-blue-50 text-blue-600 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Ипотека
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ожидаемый кэшбэк</label>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Сумма кэшбэка (4%):</span>
+                                <span class="font-medium gradient-text">580 000 ₽</span>
+                            </div>
+                            <div class="text-sm text-gray-500 mt-2">
+                                Окончательная сумма будет подтверждена после проверки документов
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Дополнительная информация</label>
+                        <textarea class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200" rows="3" placeholder="Укажите любые дополнительные детали, которые помогут нам быстрее обработать вашу заявку"></textarea>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <button type="button" onclick="toggleApplicationModal()" class="px-6 py-3 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Отменить
+                        </button>
+                        <button type="submit" class="px-6 py-3 gradient-bg text-white rounded-lg hover:brightness-95 transition">
+                            Отправить заявку
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Tab (Hidden by default) -->
+    <div id="search-tab" class="hidden bg-white rounded-xl border border-gray-100 p-6">
+            <h2 class="text-xl font-semibold mb-6">Поиск недвижимости</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Город/Район</label>
+                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg">
+                        <option>Все районы</option>
+                        <option>Центральный</option>
+                        <option>Прикубанский</option>
+                        <option>Западный</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Тип</label>
+                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg">
+                        <option>Квартира</option>
+                        <option>Апартаменты</option>
+                        <option>Дом</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Комнат</label>
+                    <select class="w-full px-3 py-2 border border-gray-200 rounded-lg">
+                        <option>Любые</option>
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Цена до, ₽</label>
+                    <input type="text" placeholder="10 000 000" class="w-full px-3 py-2 border border-gray-200 rounded-lg">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Property Card 1 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                    <div class="relative h-48">
+                        <img src="https://i.imgur.com/5LE0adM.jpg" alt="Property" class="w-full h-full object-cover">
+                        <span class="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-xs font-medium">Кэшбэк 4%</span>
+                        <button class="absolute top-2 left-2 p-2 bg-white rounded-full text-gray-400 hover:text-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium mb-1">ЖК "Резиденции"</h3>
+                        <p class="text-sm text-gray-500 mb-2">Центр, ул. Красная</p>
+                        <div class="flex justify-between">
+                            <span class="text-sm">2-комн. кв., 54 м²</span>
+                            <span class="font-medium">8 200 000 ₽</span>
+                        </div>
+                        <button class="w-full mt-3 gradient-bg text-white py-2 px-4 rounded-lg text-sm">Подробнее</button>
+                    </div>
+                </div>
+
+                <!-- Property Card 2 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                    <div class="relative h-48">
+                        <img src="https://i.imgur.com/Jkq7J7m.jpg" alt="Property" class="w-full h-full object-cover">
+                        <span class="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-xs font-medium">Кэшбэк 5%</span>
+                        <button class="absolute top-2 left-2 p-2 bg-white rounded-full text-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium mb-1">ЖК "Солнечный ветер"</h3>
+                        <p class="text-sm text-gray-500 mb-2">Западный округ</p>
+                        <div class="flex justify-between">
+                            <span class="text-sm">1-комн. кв., 32 м²</span>
+                            <span class="font-medium">5 750 000 ₽</span>
+                        </div>
+                        <button class="w-full mt-3 gradient-bg text-white py-2 px-4 rounded-lg text-sm">Подробнее</button>
+                    </div>
+                </div>
+
+                <!-- Property Card 3 -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition">
+                    <div class="relative h-48">
+                        <img src="https://i.imgur.com/8jJ3Y7H.jpg" alt="Property" class="w-full h-full object-cover">
+                        <span class="absolute top-2 right-2 bg-white px-2 py-1 rounded-full text-xs font-medium">Кэшбэк 3%</span>
+                        <button class="absolute top-2 left-2 p-2 bg-white rounded-full text-gray-400 hover:text-red-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="font-medium mb-1">ЖК "Европейский квартал"</h3>
+                        <p class="text-sm text-gray-500 mb-2">Прикубанский округ</p>
+                        <div class="flex justify-between">
+                            <span class="text-sm">3-комн. кв., 78 м²</span>
+                            <span class="font-medium">12 500 000 ₽</span>
+                        </div>
+                        <button class="w-full mt-3 gradient-bg text-white py-2 px-4 rounded-lg text-sm">Подробнее</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6 flex justify-center">
+                <button class="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50">Показать еще</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Button -->
+    <button id="chatbot-button" class="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-xl hover:bg-blue-700 transition-all animate-pulse ring-4 ring-blue-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+        </svg>
+    </button>
+
+    <!-- Chatbot Container (Visible by default) -->
+    <div id="chatbot-container" class="fixed bottom-28 right-6 w-full max-w-md bg-white rounded-t-xl rounded-l-xl shadow-2xl border-2 border-blue-400 overflow-hidden z-50">
+        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+            <h3 class="font-medium">Чат с помощником</h3>
+            <button onclick="toggleChatbot()" class="text-gray-400 hover:text-gray-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+        
+        <div class="p-4 h-80 overflow-y-auto">
+            <div class="space-y-3">
+                <div class="flex justify-start">
+                    <img src="https://picsum.photos/100/100?random=3" class="w-10 h-10 rounded-full mr-3 mt-1 border-2 border-blue-100" alt="Аватар помощника">
+                    <div class="bg-gray-100 rounded-r-xl rounded-bl-xl px-4 py-2 max-w-xs">
+                        <p class="text-sm">Здравствуйте! Я Елена, ваш персональный помощник по вопросам кэшбэка при покупке недвижимости.</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-start">
+                    <img src="https://randomuser.me/api/portraits/women/65.jpg" class="w-8 h-8 rounded-full mr-2 mt-1" alt="Аватар">
+                    <div class="bg-gray-100 rounded-r-xl rounded-bl-xl px-4 py-2 max-w-xs">
+                        <p class="text-sm">Вы можете спросить меня о:</p>
+                        <ul class="list-disc pl-4 mt-1 text-xs text-gray-600">
+                            <li>Ваших текущих заявках</li>
+                            <li>Прогресс выплат</li>
+                            <li>Новых ЖК с максимальным кэшбэком</li>
+                            <li>Требованиях к документам</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end">
+                    <div class="bg-blue-100 rounded-l-xl rounded-br-xl px-4 py-2 max-w-xs">
+                        <p class="text-sm">Какие у меня заявки?</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-start">
+                    <img src="https://randomuser.me/api/portraits/women/65.jpg" class="w-8 h-8 rounded-full mr-2 mt-1" alt="Аватар">
+                    <div class="bg-gray-100 rounded-r-xl rounded-bl-xl px-4 py-2 max-w-xs">
+                        <p class="text-sm">У вас 3 активных заявки:</p>
+                        <p class="text-xs mt-1">1. ЖК "Небесный берег" (статус: одобрена)</p>
+                        <p class="text-xs">2. ЖК "Европейский" (статус: в проверке)</p>
+                        <p class="text-xs">3. ЖК "Солнечный город" (статус: документы)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-4 py-3 border-t border-gray-200">
+            <div class="relative">
+                <input type="text" placeholder="Напишите ваш вопрос..." class="w-full pl-4 pr-12 py-2 border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-200 focus:border-blue-500">
+                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 gradient-bg text-white p-1 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">
+                Попробуйте спросить: "Как получить кэшбэк?" или "Какие районы есть?"
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 border-t border-gray-200">
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="gradient-bg w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold">C</div>
+                        <span class="font-semibold">Clickback</span>
+                    </div>
+                    <p class="text-sm text-gray-500">Технологичный способ купить квартиру и получить до 500 000 ₽ обратно</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium mb-4">Компания</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">О нас</a></li>
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">Команда</a></li>
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">Карьера</a></li>
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">Контакты</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium mb-4">Помощь</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">Как это работает</a></li>
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">FAQ</a></li>
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">Документы</a></li>
+                        <li><a href="#" class="text-sm text-gray-500 hover:text-gray-700">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-medium mb-4">Контакты</h4>
+                    <ul class="space-y-2">
+                        <li class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                            </svg>
+                            <span class="text-sm text-gray-500">+7 (861) 205-05-05</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                            <span class="text-sm text-gray-500">info@clickback.ru</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span class="text-sm text-gray-500">Краснодар, ул. Красная, 180</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <p class="text-sm text-gray-500">© 2023 Clickback. Все права защищены.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-400 hover:text-gray-500">
+                        <span class="sr-only">Telegram</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.57-1.38-.92-2.23-1.48-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.03-.1.01-.19-.05-.26-.13-.16-.43-.17-.62-.08-.24.1-4.12 2.58-5.52 3.43-.52.32-.99.48-1.49.48-.5 0-1.44-.14-2.15-.5-.54-.28-.97-.61-1.37-1.12-.2-.27 0-.41.15-.52.15-.1.35-.25.52-.38.5-.36.83-.6 1.24-.96.18-.16.32-.24.5-.4.5-.4.07-.38-.01-.52-.04-.1-.42-1-.58-1.37-.15-.37-.3-.38-.52-.38h-.5c-.17 0-.43.06-.65.28-.23.23-.89.87-.89 2.07 0 1.2.89 2.4 1.01 2.56.12.17 1.76 2.67 4.25 3.73.6.26 1.07.41 1.45.53.6.19 1.16.17 1.6.1.5-.1 1.52-.62 1.74-1.22.22-.6.22-1.13.15-1.22-.06-.1-.27-.17-.56-.3-.36-.17-2.17-.8-2.5-.95-.4-.16-.69-.25-.59-.53.1-.28.58-.1 1.09-.17.36-.05.83-.12 1.19-.23.39-.1.82-.25 1.19-.41.45-.19.94-.46 1.4-.74.15-.1.35-.31.16-.6-.18-.31-.47-.24-.84-.14z" />
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-gray-500">
+                        <span class="sr-only">VK</span>
+                        <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.36 14.83c-1.43-2.5-3.92-4.26-6.36-4.26v1.49c1.94 0 3.93 1.63 4.76 2.74l-2.57 1.37-2-1.4-3.56 2.13c-.11-2.13.03-3.57 0-5.82h-2v-2h2v-1.82h-2V8h3.75v2H16v1.62h1.19l.64-1.62H19v2.23l-1.02.74c.24 1.17.38 2.38.38 3.52v.39l1.01-.61c-.04-.25-.03-2.62 0-2.96v-2.89l2-1.34v1.62l-.91.79c-.04-1.17.05-4.35.05-4.72-.77-1.77-3.57-3.25-6.86-3.27l-.74 2h.96c1.35-.01 2.77.54 2.77 1.63l-3.96-.01v-.98l-1.11.03v5.26L7 11.26v1.58l2.23 1.72v4.41c.71 1.52 2.25 2.32 3.77 2.32 1.52 0 3.86-1.7 4.36-3.84z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Tab switching functionality
+        function changeTab(tabName) {
+            // Hide all tabs
+            ['profile', 'applications', 'calculator', 'favorites', 'search'].forEach(tab => {
+                const tabEl = document.getElementById(tab + '-tab');
+                if (tabEl) tabEl.classList.add('hidden');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.remove('hidden');
+        }
+
+        // Show applications by default
+        changeTab('applications');
+        
+        // Application modal functionality
+        function toggleApplicationModal() {
+            const modal = document.getElementById('application-modal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            } else {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+        
+        // Enhanced Chatbot functionality
+        function toggleChatbot() {
+            const container = document.getElementById('chatbot-container');
+            container.classList.toggle('hidden');
+        }
+
+        // Handle chat messages
+        const chatInput = document.querySelector('#chatbot-container input[type="text"]');
+        const chatMessages = document.querySelector('#chatbot-container .overflow-y-auto');
+
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && chatInput.value.trim()) {
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'flex justify-end';
+                userMsg.innerHTML = `
+                    <div class="bg-blue-100 rounded-l-xl rounded-br-xl px-4 py-2 max-w-xs">
+                        <p class="text-sm">${chatInput.value}</p>
+                    </div>
+                `;
+                chatMessages.appendChild(userMsg);
+                
+                // Add bot response after delay
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'flex justify-start';
+                    botMsg.innerHTML = `
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" class="w-8 h-8 rounded-full mr-2 mt-1" alt="Аватар">
+                        <div class="bg-gray-100 rounded-r-xl rounded-bl-xl px-4 py-2 max-w-xs">
+                            <p class="text-sm">Я передам ваш вопрос специалисту и скоро вам ответим. Пока могу показать ваши заявки или помочь с расчетом кэшбэка.</p>
+                        </div>
+                    `;
+                    chatMessages.appendChild(botMsg);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+                
+                chatInput.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
+        
+        // Initialize chatbot button
+        document.getElementById('chatbot-button').addEventListener('click', toggleChatbot);
+
+        // Notifications functionality
+        const notificationsBtn = document.getElementById('notifications-btn');
+        const notificationsDropdown = document.getElementById('notifications-dropdown');
+
+        notificationsBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationsDropdown.classList.toggle('hidden');
+        });
+
+        // Close notifications when clicking outside
+        document.addEventListener('click', function() {
+            notificationsDropdown.classList.add('hidden');
+        });
+
+        // Prevent dropdown close when clicking inside
+        notificationsDropdown.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+
+        // Show sample notification
+        function showNotification() {
+            const notification = document.createElement('div');
+            notification.className = 'ton-notification show';
+            notification.innerHTML = `
+                <div class="flex items-start">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" class="w-10 h-10 rounded-full mr-3" alt="Support">
+                    <div>
+                        <h4 class="font-medium">Новое уведомление</h4>
+                        <p class="text-sm text-gray-600 mt-1">Ваша заявка была успешно обработана</p>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        // Show notification every 30s for demo
+        setInterval(showNotification, 30000);
+    </script>
+</body>
+</html>

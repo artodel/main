@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClickBack | Личный кабинет</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ton: {
+                            primary: '#0088CC',
+                            secondary: '#39F',
+                            dark: '#222',
+                            light: '#F5F5F5',
+                            accent: '#FF6B00'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(0, 136, 204, 0.05);
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(0, 136, 204, 0.08);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+            background-color: #e0e0e0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            background-color: #0088CC;
+            transition: width 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.2s ease-out forwards;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #FF6B00;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .notification-badge:hover {
+            transform: scale(1.1);
+        }
+        
+        #notification-dropdown {
+            right: 0;
+            top: calc(100% + 10px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            display: none;
+            min-width: 320px;
+            z-index: 50;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        #notification-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            display: block;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Notifications dropdown
+            const notificationButtons = [
+                document.getElementById('notification-button'),
+                document.getElementById('notification-button-mobile')
+            ];
+            
+            const notificationBadges = [
+                document.getElementById('notification-badge'),
+                document.getElementById('notification-badge-mobile')
+            ];
+            
+            const notificationDropdown = document.getElementById('notification-dropdown');
+            const notificationDropdownMobile = document.getElementById('notification-dropdown-mobile');
+
+            function toggleDropdown(dropdown) {
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                    setTimeout(() => {
+                        dropdown.style.display = 'none';
+                    }, 300);
+                } else {
+                    dropdown.style.display = 'block';
+                    setTimeout(() => {
+                        dropdown.classList.add('show');
+                    }, 10);
+                    
+                    // Hide all badges after opening notifications
+                    notificationBadges.forEach(badge => {
+                        if (badge) badge.classList.add('hidden');
+                    });
+                }
+            }
+
+            function toggleNotifications() {
+                toggleDropdown(notificationDropdown);
+            }
+
+            function toggleNotificationsMobile() {
+                toggleDropdown(notificationDropdownMobile);
+            }
+
+            function toggleNotifications() {
+                if (notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                    setTimeout(() => {
+                        notificationDropdown.style.display = 'none';
+                    }, 300);
+                } else {
+                    notificationDropdown.style.display = 'block';
+                    setTimeout(() => {
+                        notificationDropdown.classList.add('show');
+                    }, 10);
+                    
+                    // Hide all badges after opening notifications
+                    notificationBadges.forEach(badge => {
+                        if (badge) badge.classList.add('hidden');
+                    });
+                }
+            }
+
+            function closeNotifications() {
+                if (notificationDropdown.classList.contains('show')) {
+                    notificationDropdown.classList.remove('show');
+                    setTimeout(() => {
+                        notificationDropdown.style.display = 'none';
+                    }, 300);
+                }
+                if (notificationDropdownMobile.classList.contains('show')) {
+                    notificationDropdownMobile.classList.remove('show');
+                    setTimeout(() => {
+                        notificationDropdownMobile.style.display = 'none';
+                    }, 300);
+                }
+            }
+
+            // Add event listeners for all notification buttons
+            // Desktop notifications
+            const desktopButton = document.getElementById('notification-button');
+            const desktopButton2 = document.getElementById('notification-button-2');
+            
+            if (desktopButton) {
+                desktopButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleNotifications();
+                });
+            }
+            
+            if (desktopButton2) {
+                desktopButton2.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleNotifications();
+                });
+            }
+
+            // Mobile notifications
+            const mobileButton = document.getElementById('notification-button-mobile');
+            if (mobileButton) {
+                mobileButton.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleNotificationsMobile();
+                });
+            }
+
+            // Notification badges
+            const desktopBadge = document.getElementById('notification-badge');
+            const mobileBadge = document.getElementById('notification-badge-mobile');
+            
+            if (desktopBadge) {
+                desktopBadge.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleNotifications();
+                });
+            }
+            
+            if (mobileBadge) {
+                mobileBadge.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleNotificationsMobile();
+                });
+            }
+
+            document.addEventListener('click', function() {
+                closeNotifications();
+            });
+
+            notificationDropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            // Example: Show badge when new notifications arrive
+            function showNewNotifications(count) {
+                notificationBadge.textContent = count;
+                notificationBadge.classList.remove('hidden');
+            }
+            // User menu dropdown
+            const userMenuButton = document.getElementById('user-menu-button');
+            const userMenu = document.getElementById('user-menu');
+            
+            userMenuButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userMenu.classList.toggle('hidden');
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', function() {
+                userMenu.classList.add('hidden');
+            });
+
+            const dropdownButton = document.getElementById('contact-dropdown-button');
+            const dropdownMenu = document.getElementById('contact-dropdown-menu');
+            
+            dropdownButton.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', function() {
+                dropdownMenu.classList.add('hidden');
+            });
+
+            // Handle page switching
+            const cashbackLink = document.getElementById('cashback-link');
+            const applicationsLink = document.getElementById('applications-link');
+            const favoritesLink = document.getElementById('favorites-link');
+            const collectionsLink = document.getElementById('collections-link');
+            const settingsLink = document.getElementById('settings-link');
+            const cashbackPage = document.getElementById('cashback-page');
+            const applicationsPage = document.getElementById('applications-page');
+            const favoritesPage = document.getElementById('favorites-page');
+            const collectionsPage = document.getElementById('collections-page');
+            const settingsPage = document.getElementById('settings-page');
+            const managerPage = document.getElementById('manager-page');
+            const documentsPage = document.getElementById('documents-page');
+            const statsCards = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4.gap-4.mb-6');
+            const mainSections = document.querySelector('.grid.grid-cols-1.lg\\:grid-cols-3.gap-6');
+
+            function showPage(page) {
+                if (page === 'cashback') {
+                    cashbackPage.classList.remove('hidden');
+                    applicationsPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    documentsPage.classList.add('hidden');
+                } else if (page === 'applications') {
+                    applicationsPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    documentsPage.classList.add('hidden');
+                } else if (page === 'favorites') {
+                    favoritesPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    applicationsPage.classList.add('hidden');
+                    collectionsPage.classList.add('hidden');
+                    documentsPage.classList.add('hidden');
+                } else if (page === 'collections') {
+                    collectionsPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    applicationsPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    settingsPage.classList.add('hidden');
+                    documentsPage.classList.add('hidden');
+                } else if (page === 'manager') {
+                    managerPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    applicationsPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    collectionsPage.classList.add('hidden');
+                    settingsPage.classList.add('hidden');
+                    documentsPage.classList.add('hidden');
+                } else if (page === 'settings') {
+                    settingsPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    applicationsPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    collectionsPage.classList.add('hidden');
+                    managerPage.classList.add('hidden');
+                    documentsPage.classList.add('hidden');
+                } else if (page === 'documents') {
+                    documentsPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    applicationsPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    collectionsPage.classList.add('hidden');
+                    managerPage.classList.add('hidden');
+                    settingsPage.classList.add('hidden');
+                } else if (page === 'documents') {
+                    documentsPage.classList.remove('hidden');
+                    cashbackPage.classList.add('hidden');
+                    applicationsPage.classList.add('hidden');
+                    favoritesPage.classList.add('hidden');
+                    collectionsPage.classList.add('hidden');
+                    managerPage.classList.add('hidden');
+                    settingsPage.classList.add('hidden');
+                }
+                statsCards.classList.add('hidden');
+                mainSections.classList.add('hidden');
+                document.querySelectorAll('.sidebar-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                if (page === 'cashback') {
+                    cashbackLink.parentElement.classList.add('active');
+                } else if (page === 'applications') {
+                    applicationsLink.parentElement.classList.add('active');
+                }
+            }
+
+            function hidePages() {
+                cashbackPage.classList.add('hidden');
+                applicationsPage.classList.add('hidden');
+                favoritesPage.classList.add('hidden');
+                collectionsPage.classList.add('hidden');
+                settingsPage.classList.add('hidden');
+                documentsPage.classList.add('hidden');
+                statsCards.classList.remove('hidden');
+                mainSections.classList.remove('hidden');
+            }
+
+            // Check URL hash on load
+            if (window.location.hash === '#cashback') {
+                showPage('cashback');
+            } else if (window.location.hash === '#applications') {
+                showPage('applications');
+            }
+
+            // Handle link clicks
+            cashbackLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'cashback';
+                showPage('cashback');
+            });
+
+            applicationsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'applications';
+                showPage('applications');
+            });
+
+            favoritesLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'favorites';
+                showPage('favorites');
+            });
+
+            collectionsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'collections';
+                showPage('collections');
+            });
+
+            const managerLink = document.getElementById('manager-link');
+            
+            managerLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'manager';
+                showPage('manager');
+            });
+
+            settingsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'settings';
+                showPage('settings');
+            });
+
+            documentsLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = 'documents';
+                showPage('documents');
+            });
+
+            // Handle hash changes
+            window.addEventListener('hashchange', function() {
+                if (window.location.hash === '#cashback') {
+                    showPage('cashback');
+                } else if (window.location.hash === '#applications') {
+                    showPage('applications');
+                } else if (window.location.hash === '#favorites') {
+                    showPage('favorites');
+                } else if (window.location.hash === '#collections') {
+                    showPage('collections');
+                } else if (window.location.hash === '#manager') {
+                    showPage('manager');
+                } else if (window.location.hash === '#settings') {
+                    showPage('settings');
+                } else if (window.location.hash === '#documents') {
+                    showPage('documents');
+                } else {
+                    hidePages();
+                }
+            });
+        });
+    </script>
+</head>
+<body class="bg-ton-light">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div class="hidden md:flex md:flex-shrink-0">
+            <div class="flex flex-col w-64 bg-white border-r border-gray-200">
+                <div class="flex items-center justify-center h-16 px-4 bg-ton-primary">
+                    <div class="flex items-center">
+                        <i class="fas fa-home text-white text-2xl mr-2"></i>
+                        <span class="text-white font-bold text-xl">ClickBack</span>
+                    </div>
+                </div>
+                <div class="flex flex-col flex-grow px-4 py-4 overflow-y-auto">
+                    <!-- User Profile -->
+                    <div class="flex items-center mb-8">
+                        <div class="relative">
+                            <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User profile">
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-ton-dark">Иван Петров</p>
+                            <p class="text-xs text-gray-500">ID: CB12345678</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation -->
+                    <nav class="flex-1 space-y-2">
+                        <a href="#" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item active">
+                            <i class="fas fa-tachometer-alt text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Главная</span>
+                        </a>
+                        <a href="#manager" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="manager-link">
+                            <i class="fas fa-user-tie text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Личный менеджер</span>
+                        </a>
+                        <a href="#cashback" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="cashback-link">
+                            <i class="fas fa-coins text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Кешбек</span>
+                            <span class="ml-auto bg-ton-primary text-white text-xs px-2 py-1 rounded-full">3</span>
+                        </a>
+                        <a href="#applications" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="applications-link">
+                            <i class="fas fa-file-alt text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Заявки</span>
+                        </a>
+                        <a href="#favorites" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="favorites-link">
+                            <i class="fas fa-heart text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Избранное</span>
+                        </a>
+                        <a href="#collections" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="collections-link">
+                            <i class="fas fa-list text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Подборки</span>
+                        </a>
+                        <a href="#documents" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="documents-link">
+                            <i class="fas fa-file-alt text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Документы</span>
+                        </a>
+                        <a href="#documents" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="documents-link">
+                            <i class="fas fa-file-alt text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Документы</span>
+                        </a>
+                        <a href="#settings" class="flex items-center px-4 py-2.5 text-sm font-medium sidebar-item" id="settings-link">
+                            <i class="fas fa-cog text-ton-primary mr-3 w-5 text-center"></i>
+                            <span>Настройки</span>
+                        </a>
+                    </nav>
+                    
+                    <!-- Support -->
+                    <div class="mt-auto pt-4">
+                        <div class="bg-ton-light rounded-lg p-4">
+                            <div class="flex items-center">
+                                <img class="w-12 h-12 rounded-full" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Manager profile">
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-ton-dark">Анна Смирнова</p>
+                                    <p class="text-xs text-gray-500">Ваш персональный менеджер</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 relative">
+                                <button class="w-full flex items-center justify-center bg-white hover:bg-ton-primary hover:text-white text-ton-dark text-sm font-medium py-2 px-2 rounded-lg transition duration-200" id="contact-dropdown-button">
+                                    <i class="fas fa-comments mr-2"></i>
+                                    <span>Связаться</span>
+                                    <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                                </button>
+                                <div class="hidden absolute left-0 mt-1 w-full bg-white rounded-lg shadow-lg z-10" id="contact-dropdown-menu">
+                                    <a href="tel:+74951234567" class="flex items-center px-4 py-2 text-sm text-ton-dark hover:bg-ton-primary hover:text-white rounded-t-lg">
+                                        <i class="fas fa-phone-alt mr-2"></i>
+                                        <span>Телефон</span>
+                                    </a>
+                                    <a href="https://t.me/annasmirnova_cb" class="flex items-center px-4 py-2 text-sm text-ton-dark hover:bg-ton-primary hover:text-white">
+                                        <i class="fab fa-telegram mr-2"></i>
+                                        <span>Telegram</span>
+                                    </a>
+                                    <a href="mailto:anna.smirnova@clickback.ru" class="flex items-center px-4 py-2 text-sm text-ton-dark hover:bg-ton-primary hover:text-white rounded-b-lg">
+                                        <i class="fas fa-envelope mr-2"></i>
+                                        <span>Почта</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <!-- Mobile Header -->
+            <div class="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
+                <button class="text-ton-dark">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="flex items-center">
+                    <i class="fas fa-home text-ton-primary text-xl mr-2"></i>
+                    <span class="text-ton-dark font-bold">ClickBack</span>
+                </div>
+                <div class="relative">
+                    <button id="notification-button-mobile" class="focus:outline-none">
+                        <i class="fas fa-bell text-xl text-ton-dark"></i>
+                        <div id="notification-badge-mobile" class="notification-badge">5</div>
+                    </button>
+                    
+                    <div id="notification-dropdown-mobile" style="display: none;" class="absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                        <div class="px-4 py-3 border-b border-gray-200">
+                            <h3 class="text-sm font-medium text-ton-dark">Уведомления</h3>
+                        </div>
+                        <div class="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                            <!-- Notification items -->
+                            <a href="#" class="flex px-4 py-3 hover:bg-gray-50">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-blue-100 p-2 rounded-full">
+                                        <i class="fas fa-info-circle text-blue-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">Новая заявка одобрена</p>
+                                    <p class="text-sm text-gray-500">Ваша заявка на ЖК "Солнечный" одобрена</p>
+                                    <p class="text-xs text-gray-400 mt-1">2 часа назад</p>
+                                </div>
+                            </a>
+                            <a href="#" class="flex px-4 py-3 hover:bg-gray-50">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-green-100 p-2 rounded-full">
+                                        <i class="fas fa-check-circle text-green-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">Выплата отправлена</p>
+                                    <p class="text-sm text-gray-500">Ваша выплата 75,000 ₽ обработана</p>
+                                    <p class="text-xs text-gray-400 mt-1">1 день назад</p>
+                                </div>
+                            </a>
+                            <a href="#" class="flex px-4 py-3 hover:bg-gray-50">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-yellow-100 p-2 rounded-full">
+                                        <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">Требуются документы</p>
+                                    <p class="text-sm text-gray-500">Для ЖК "Лесная Гавань" нужны дополнительные документы</p>
+                                    <p class="text-xs text-gray-400 mt-1">2 дня назад</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="px-4 py-2 bg-gray-50 text-center">
+                            <a href="#" class="text-sm font-medium text-ton-primary hover:text-blue-700">Показать все</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Desktop Header -->
+            <div class="hidden md:flex items-center justify-between px-6 py-4 bg-white border-b border-gray-200">
+                <div class="flex items-center space-x-6">
+                    <h1 class="text-xl font-semibold text-ton-dark">Добро пожаловать, Иван!</h1>
+                    <a href="https://clickback.ru" class="text-ton-primary hover:underline flex items-center text-sm">
+                        <i class="fas fa-arrow-left mr-1"></i> На главный сайт
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button id="notification-button" class="focus:outline-none">
+                            <i class="fas fa-bell text-xl text-ton-primary cursor-pointer"></i>
+                            <div id="notification-badge" class="notification-badge">5</div>
+                        </button>
+                        
+                        <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-72 bg-white rounded-lg shadow-lg z-50 overflow-hidden">
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <h3 class="text-sm font-medium text-ton-dark">Уведомления</h3>
+                            </div>
+                            <div class="divide-y divide-gray-100 max-h-96 overflow-y-auto">
+                                <!-- Notification items -->
+                                <a href="#" class="flex px-4 py-3 hover:bg-gray-50">
+                                    <div class="flex-shrink-0">
+                                        <div class="bg-blue-100 p-2 rounded-full">
+                                            <i class="fas fa-info-circle text-blue-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Новая заявка одобрена</p>
+                                        <p class="text-sm text-gray-500">Ваша заявка на ЖК "Солнечный" одобрена</p>
+                                        <p class="text-xs text-gray-400 mt-1">2 часа назад</p>
+                                    </div>
+                                </a>
+                                <a href="#" class="flex px-4 py-3 hover:bg-gray-50">
+                                    <div class="flex-shrink-0">
+                                        <div class="bg-green-100 p-2 rounded-full">
+                                            <i class="fas fa-check-circle text-green-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Выплата отправлена</p>
+                                        <p class="text-sm text-gray-500">Ваша выплата 75,000 ₽ обработана</p>
+                                        <p class="text-xs text-gray-400 mt-1">1 день назад</p>
+                                    </div>
+                                </a>
+                                <a href="#" class="flex px-4 py-3 hover:bg-gray-50">
+                                    <div class="flex-shrink-0">
+                                        <div class="bg-yellow-100 p-2 rounded-full">
+                                            <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                                        </div>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Требуются документы</p>
+                                        <p class="text-sm text-gray-500">Для ЖК "Лесная Гавань" нужны дополнительные документы</p>
+                                        <p class="text-xs text-gray-400 mt-1">2 дня назад</p>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="px-4 py-2 bg-gray-50 text-center">
+                                <a href="#" class="text-sm font-medium text-ton-primary hover:text-blue-700">Показать все</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <button class="flex items-center focus:outline-none" id="user-menu-button">
+                            <img class="w-8 h-8 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User profile">
+                            <span class="ml-2 text-sm font-medium text-ton-dark">Иван Петров</span>
+                            <i class="fas fa-chevron-down ml-1 text-xs text-gray-500"></i>
+                        </button>
+                        
+                        <div class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-2 z-50 overflow-hidden" id="user-menu">
+                            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-ton-primary hover:text-white transition duration-150 ease-in-out">
+                                <i class="fas fa-user-circle w-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                                <span>Личный кабинет</span>
+                            </a>
+                            <a href="#settings" class="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-ton-primary hover:text-white transition duration-150 ease-in-out">
+                                <i class="fas fa-cog w-5 mr-3 text-gray-400 group-hover:text-white"></i>
+                                <span>Профиль</span>
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="#" class="flex items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 transition duration-150 ease-in-out">
+                                <i class="fas fa-sign-out-alt w-5 mr-3 text-red-400"></i>
+                                <span>Выйти</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 overflow-auto p-4 md:p-6">
+                <!-- Cashback Section -->
+                <div id="cashback" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Ваш кешбек</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-ton-light rounded-lg p-5">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark">Доступный кешбек</h3>
+                                    <span class="text-xl font-bold text-ton-primary">125,000  ₽</span>
+                                </div>
+                                <button class="w-full bg-ton-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200">
+                                    Запросить выплату
+                                </button>
+                            </div>
+                            
+                            <div class="bg-ton-light rounded-lg p-5">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark">Всего накоплено</h3>
+                                    <span class="text-xl font-bold text-ton-dark">250,000 ₽</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-xl font-semibold text-ton-dark mb-4">История операций</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Дата</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Операция</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Сумма</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">12.05.2023</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Солнечный"</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-green-600">+75,000  ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700"><span class="bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">Выплачено</span></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">28.05.2023</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Лесная Гавань"</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-blue-600">+50,000  ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700"><span class="bg-blue-100 text-blue-800 py-1 px-2 rounded-full text-xs">В обработке</span></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">03.06.2023</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Центральный"</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-yellow-600">+50,000 ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700"><span class="bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full text-xs">Требуются документы</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Cashback Page -->
+                <div id="cashback-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Ваш кешбек</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-ton-light rounded-lg p-5">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark">Доступный кешбек</h3>
+                                    <span class="text-xl font-bold text-ton-primary">125,000 ₽</span>
+                                </div>
+                                <button class="w-full bg-ton-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200">
+                                    Запросить выплату
+                                </button>
+                            </div>
+                            
+                            <div class="bg-ton-light rounded-lg p-5">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark">Всего накоплено</h3>
+                                    <span class="text-xl font-bold text-ton-dark">250,000 ₽</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-5 mb-8">
+                            <h2 class="text-xl font-semibold text-ton-dark mb-4">Калькулятор кешбека</h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Стоимость объекта</label>
+                                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="1,000,000 ₽">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Процент кешбека</label>
+                                    <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded-lg" placeholder="5%">
+                                </div>
+                                <div class="bg-ton-light p-4 rounded-lg">
+                                    <p class="text-sm text-gray-500">Ваш кешбек составит</p>
+                                    <p class="text-2xl font-bold text-ton-primary">50,000 ₽</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h2 class="text-xl font-semibold text-ton-dark mb-4">История операций</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Дата</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Операция</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Сумма</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">12.05.2023</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Солнечный"</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-green-600">+75,000 ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700"><span class="bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">Выплачено</span></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">28.05.2023</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Лесная Гавань"</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-blue-600">+50,000 ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700"><span class="bg-blue-100 text-blue-800 py-1 px-2 rounded-full text-xs">В обработке</span></td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">03.06.2023</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Центральный"</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-yellow-600">+50,000 ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700"><span class="bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full text-xs">Требуются документы</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Collections Page -->
+                <div id="collections-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <div class="flex items-center mb-6">
+                            <a href="#" class="text-ton-primary hover:underline flex items-center">
+                                <i class="fas fa-home mr-2"></i>
+                                Главная
+                            </a>
+                            <span class="mx-2 text-gray-400">/</span>
+                            <span class="text-gray-600">Подборки квартир</span>
+                        </div>
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Подборки квартир</h1>
+                        
+                        <div class="mb-6">
+                            <div class="relative">
+                                <input type="text" placeholder="Поиск подборок..." class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-ton-primary focus:border-transparent transition duration-200 pl-10">
+                                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end mb-6">
+                            <button class="bg-ton-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200 flex items-center">
+                                <i class="fas fa-plus mr-2"></i> Создать подборку
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Collection 1 -->
+                            <div class="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition duration-200 card-hover border border-gray-100">
+                                <div class="relative">
+                                    <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                         alt="Новостройки у метро" class="w-full h-48 object-cover">
+                                    <div class="absolute top-3 right-3 bg-white bg-opacity-90 rounded-full p-2 shadow-sm">
+                                        <i class="fas fa-bookmark text-ton-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="p-5">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="text-lg font-semibold text-ton-dark mb-2">Новостройки у метро</h3>
+                                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Новые</span>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mb-4">12 объектов в пешей доступности от станций метро</p>
+                                    <div class="flex justify-between items-center">
+                                        <div>
+                                            <span class="text-sm text-gray-500">Кешбек до</span>
+                                            <span class="text-ton-primary font-bold ml-1">5%</span>
+                                        </div>
+                                        <button class="bg-ton-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm transition duration-200">
+                                            Показать <i class="fas fa-chevron-right ml-1"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Collection 2 -->
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200 card-hover">
+                                <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                     alt="Студии в центре" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark mb-2">Студии в центре</h3>
+                                    <p class="text-sm text-gray-500 mb-4">8 компактных квартир в центре города</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Кешбек до 7%</span>
+                                        <button class="text-ton-primary hover:underline text-sm">Показать</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Collection 3 -->
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200 card-hover">
+                                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                     alt="Семейные квартиры" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark mb-2">Семейные квартиры</h3>
+                                    <p class="text-sm text-gray-500 mb-4">15 просторных вариантов для семей</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Кешбек до 6%</span>
+                                        <button class="text-ton-primary hover:underline text-sm">Показать</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorites Page -->
+                <div id="favorites-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Избранные объекты</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Favorite Item 1 -->
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200">
+                                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                     alt="ЖК Речной" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="text-lg font-semibold text-ton-dark">ЖК "Речной"</h3>
+                                        <button class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">2-комн. квартира, 56 м²</p>
+                                    <div class="flex justify-between items-center mt-4">
+                                        <span class="text-lg font-bold text-ton-primary">8,500,000 ₽</span>
+                                        <button class="text-ton-primary hover:underline text-sm">Подробнее</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Favorite Item 2 -->
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200">
+                                <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                     alt="ЖК Парковый" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="text-lg font-semibold text-ton-dark">ЖК "Парковый"</h3>
+                                        <button class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">3-комн. квартира, 78 м²</p>
+                                    <div class="flex justify-between items-center mt-4">
+                                        <span class="text-lg font-bold text-ton-primary">12,300,000  ₽</span>
+                                        <button class="text-ton-primary hover:underline text-sm">Подробнее</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Favorite Item 3 -->
+                            <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition duration-200">
+                                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" 
+                                     alt="ЖК Солнечный" class="w-full h-48 object-cover">
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start">
+                                        <h3 class="text-lg font-semibold text-ton-dark">ЖК "Солнечный"</h3>
+                                        <button class="text-red-500 hover:text-red-700">
+                                            <i class="fas fa-heart"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mt-1">1-комн. квартира, 42 м²</p>
+                                    <div class="flex justify-between items-center mt-4">
+                                        <span class="text-lg font-bold text-ton-primary">6,200,000  ₽</span>
+                                        <button class="text-ton-primary hover:underline text-sm">Подробнее</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manager Placeholder Page -->
+                <div id="manager-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6 overflow-hidden relative">
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-ton-primary opacity-5 rounded-full -mr-32 -mt-32"></div>
+                        <div class="text-center py-8 relative z-10">
+                            <div class="mx-auto w-32 h-32 rounded-full bg-gradient-to-br from-ton-primary to-blue-300 flex items-center justify-center mb-6 shadow-lg">
+                                <i class="fas fa-user-tie text-4xl text-white"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-ton-dark mb-2">Личный менеджер</h2>
+                            <p class="text-gray-500 mb-8 max-w-lg mx-auto">Ваш персональный менеджер поможет с любыми вопросами и подберет лучшие варианты</p>
+                            
+                            <div class="max-w-md mx-auto bg-gradient-to-br from-white to-blue-50 rounded-xl p-8 border border-blue-100 shadow-sm">
+                                <div class="flex items-center mb-8 p-4 bg-white rounded-lg shadow-sm">
+                                    <img class="w-16 h-16 rounded-full border-2 border-white shadow-md" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Manager">
+                                    <div class="ml-4 text-left">
+                                        <h3 class="font-bold text-ton-dark">Анна Смирнова</h3>
+                                        <p class="text-sm text-gray-500">Ваш персональный менеджер</p>
+                                        <div class="flex items-center mt-1">
+                                            <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                            <span class="text-xs text-gray-500 ml-1">4.9 рейтинг</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <h3 class="text-xl font-semibold text-ton-dark mb-6">Свяжитесь удобным способом</h3>
+                                <div class="space-y-4">
+                                    <a href="tel:+74951234567" class="flex items-center justify-between bg-white hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-6 rounded-xl transition duration-200 shadow-sm border border-gray-100 hover:border-ton-primary">
+                                        <div class="flex items-center">
+                                            <div class="bg-blue-100 p-2 rounded-lg mr-4">
+                                                <i class="fas fa-phone-alt text-blue-600"></i>
+                                            </div>
+                                            <span>+7 (495) 123-45-67</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-sm opacity-70"></i>
+                                    </a>
+                                    <a href="https://t.me/clickback_support" class="flex items-center justify-between bg-white hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-6 rounded-xl transition duration-200 shadow-sm border border-gray-100 hover:border-ton-primary">
+                                        <div class="flex items-center">
+                                            <div class="bg-blue-100 p-2 rounded-lg mr-4">
+                                                <i class="fab fa-telegram text-blue-600"></i>
+                                            </div>
+                                            <span>@clickback_support</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-sm opacity-70"></i>
+                                    </a>
+                                    <a href="mailto:support@clickback.ru" class="flex items-center justify-between bg-white hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-6 rounded-xl transition duration-200 shadow-sm border border-gray-100 hover:border-ton-primary">
+                                        <div class="flex items-center">
+                                            <div class="bg-blue-100 p-2 rounded-lg mr-4">
+                                                <i class="fas fa-envelope text-blue-600"></i>
+                                            </div>
+                                            <span>support@clickback.ru</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right text-sm opacity-70"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Applications Page -->
+                <div id="applications-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Ваши заявки на кешбек</h1>
+                        
+                        <div class="mb-8">
+                            <button class="bg-ton-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200 mb-4">
+                                <i class="fas fa-plus mr-2"></i>Новая заявка
+                            </button>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <div class="bg-ton-light rounded-lg p-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark mb-2">Всего заявок</h3>
+                                    <p class="text-2xl font-bold">7</p>
+                                </div>
+                                <div class="bg-ton-light rounded-lg p-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark mb-2">На проверке</h3>
+                                    <p class="text-2xl font-bold text-blue-600">3</p>
+                                </div>
+                                <div class="bg-ton-light rounded-lg p-4">
+                                    <h3 class="text-lg font-semibold text-ton-dark mb-2">Одобрено</h3>
+                                    <p class="text-2xl font-bold text-green-600">4</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white">
+                                <thead>
+                                    <tr class="border-b border-gray-200">
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">ID заявки</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Жилой комплекс</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Дата подачи</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Сумма кешбека</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Статус</th>
+                                        <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">CB-2023-045</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Речной"</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">15.06.2023</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-ton-dark">85,000  ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <span class="bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">Одобрено</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <button class="text-ton-primary hover:underline">Подробнее</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">CB-2023-044</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Парковый"</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">10.06.2023</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-ton-dark">120,000 ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <span class="bg-blue-100 text-blue-800 py-1 px-2 rounded-full text-xs">На проверке</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <button class="text-ton-primary hover:underline">Подробнее</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">CB-2023-043</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Солнечный"</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">05.06.2023</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-ton-dark">75,000  ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <span class="bg-yellow-100 text-yellow-800 py-1 px-2 rounded-full text-xs">Требуются документы</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <button class="text-ton-primary hover:underline">Загрузить</button>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                                        <td class="py-3 px-4 text-sm text-gray-700">CB-2023-042</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">ЖК "Лесная Гавань"</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">01.06.2023</td>
+                                        <td class="py-3 px-4 text-sm font-medium text-ton-dark">95,000 ₽</td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <span class="bg-green-100 text-green-800 py-1 px-2 rounded-full text-xs">Одобрено</span>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-gray-700">
+                                            <button class="text-ton-primary hover:underline">Подробнее</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm p-5 card-hover transition duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Доступный кешбек</p>
+                                <p class="text-2xl font-bold text-ton-dark mt-1">125,000 ₽</p>
+                            </div>
+                            <div class="bg-ton-primary bg-opacity-10 p-3 rounded-full">
+                                <i class="fas fa-wallet text-ton-primary text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Всего накоплено</span>
+                                <span>250,000 ₽</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-5 card-hover transition duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Активные заявки</p>
+                                <p class="text-2xl font-bold text-ton-dark mt-1">3</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-file-alt text-green-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Всего заявок</span>
+                                <span>7</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 42%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-5 card-hover transition duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Избранные объекты</p>
+                                <p class="text-2xl font-bold text-ton-dark mt-1">12</p>
+                            </div>
+                            <div class="bg-red-100 p-3 rounded-full">
+                                <i class="fas fa-heart text-red-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Просмотрено за месяц</span>
+                                <span>28</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm p-5 card-hover transition duration-200">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-500">Персональные подборки</p>
+                                <p class="text-2xl font-bold text-ton-dark mt-1">5</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-list text-purple-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Рекомендовано</span>
+                                <span>15</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 33%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Sections -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Personal Manager -->
+                        <div class="bg-white rounded-xl shadow-sm p-5 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-ton-primary opacity-5 rounded-full -mr-10 -mt-10"></div>
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-semibold text-ton-dark">Ваш личный менеджер</h2>
+                                <button class="text-ton-primary text-sm font-medium hover:underline">Написать сообщение</button>
+                            </div>
+                            <div class="flex items-center p-4 bg-gradient-to-r from-ton-light to-blue-50 rounded-lg border border-blue-100">
+                                <div class="relative floating">
+                                    <img class="w-16 h-16 rounded-full border-2 border-white shadow-md" src="https://randomuser.me/api/portraits/women/44.jpg" alt="Manager profile">
+                                    <div class="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                                </div>
+                                <div class="ml-4">
+                                    <p class="font-medium text-ton-dark">Анна Смирнова</p>
+                                    <p class="text-sm text-gray-500">Персональный менеджер ClickBack</p>
+                                    <div class="flex items-center mt-1">
+                                        <div class="flex">
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        </div>
+                                        <span class="text-xs text-gray-500 ml-1">4.9 (87 отзывов)</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 grid grid-cols-2 gap-3">
+                                <button class="flex items-center justify-center bg-white hover:bg-ton-primary hover:text-white text-ton-dark py-3 px-4 rounded-lg transition duration-200 border border-gray-200 hover:border-ton-primary shadow-sm hover:shadow-md">
+                                    <i class="fas fa-phone-alt mr-2"></i>
+                                    <span>Позвонить</span>
+                                </button>
+                                <button class="flex items-center justify-center bg-white hover:bg-ton-primary hover:text-white text-ton-dark py-3 px-4 rounded-lg transition duration-200 border border-gray-200 hover:border-ton-primary shadow-sm hover:shadow-md">
+                                    <i class="fas fa-video mr-2"></i>
+                                    <span>Видеозвонок</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Cashback Applications -->
+                        <div class="bg-white rounded-xl shadow-sm p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-semibold text-ton-dark">Заявки на кешбек</h2>
+                                <button class="text-ton-primary text-sm font-medium">Все заявки</button>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex items-center p-3 bg-ton-light rounded-lg">
+                                    <div class="bg-green-100 p-2 rounded-lg">
+                                        <i class="fas fa-check-circle text-green-600"></i>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium text-ton-dark">ЖК "Солнечный"</p>
+                                        <p class="text-sm text-gray-500">Одобрено: 75,000 ₽</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-500">12.05.2023</p>
+                                        <button class="text-ton-primary text-xs font-medium mt-1">Подробнее</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-3 bg-ton-light rounded-lg">
+                                    <div class="bg-blue-100 p-2 rounded-lg">
+                                        <i class="fas fa-clock text-blue-600"></i>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium text-ton-dark">ЖК "Лесная Гавань"</p>
+                                        <p class="text-sm text-gray-500">На проверке: 50,000 ₽</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-500">28.05.2023</p>
+                                        <button class="text-ton-primary text-xs font-medium mt-1">Подробнее</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center p-3 bg-ton-light rounded-lg">
+                                    <div class="bg-yellow-100 p-2 rounded-lg">
+                                        <i class="fas fa-exclamation-circle text-yellow-600"></i>
+                                    </div>
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium text-ton-dark">ЖК "Центральный"</p>
+                                        <p class="text-sm text-gray-500">Требуются документы</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-500">03.06.2023</p>
+                                        <button class="text-ton-primary text-xs font-medium mt-1">Подробнее</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column -->
+                    <div class="space-y-6">
+                        <!-- Quick Actions -->
+                        <div class="bg-white rounded-xl shadow-sm p-5">
+                            <h2 class="text-lg font-semibold text-ton-dark mb-4">Быстрые действия</h2>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button class="flex flex-col items-center justify-center bg-ton-light hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-plus-circle text-2xl mb-2"></i>
+                                    <span class="text-sm">Новая заявка</span>
+                                </button>
+                                <button class="flex flex-col items-center justify-center bg-ton-light hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-search-dollar text-2xl mb-2"></i>
+                                    <span class="text-sm">Найти объект</span>
+                                </button>
+                                <button onclick="window.location.hash='documents'; showPage('documents')" class="flex flex-col items-center justify-center bg-ton-light hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-file-invoice-dollar text-2xl mb-2"></i>
+                                    <span class="text-sm">Документы</span>
+                                </button>
+                                <button class="flex flex-col items-center justify-center bg-ton-light hover:bg-ton-primary hover:text-white text-ton-dark py-4 px-2 rounded-lg transition duration-200">
+                                    <i class="fas fa-headset text-2xl mb-2"></i>
+                                    <span class="text-sm">Поддержка</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Favorites -->
+                        <div class="bg-white rounded-xl shadow-sm p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-semibold text-ton-dark">Избранное</h2>
+                                <button class="text-ton-primary text-sm font-medium">Все объекты</button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center p-3 hover:bg-ton-light rounded-lg transition duration-200 cursor-pointer">
+                                    <img class="w-12 h-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Property">
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium text-ton-dark text-sm">ЖК "Речной"</p>
+                                        <p class="text-xs text-gray-500">2-комн. квартира, 56 м²</p>
+                                    </div>
+                                    <i class="fas fa-heart text-red-500"></i>
+                                </div>
+                                
+                                <div class="flex items-center p-3 hover:bg-ton-light rounded-lg transition duration-200 cursor-pointer">
+                                    <img class="w-12 h-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Property">
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium text-ton-dark text-sm">ЖК "Парковый"</p>
+                                        <p class="text-xs text-gray-500">3-комн. квартира, 78 м²</p>
+                                    </div>
+                                    <i class="fas fa-heart text-red-500"></i>
+                                </div>
+                                
+                                <div class="flex items-center p-3 hover:bg-ton-light rounded-lg transition duration-200 cursor-pointer">
+                                    <img class="w-12 h-12 rounded-lg object-cover" src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=500&q=80" alt="Property">
+                                    <div class="ml-3 flex-1">
+                                        <p class="font-medium text-ton-dark text-sm">ЖК "Солнечный"</p>
+                                        <p class="text-xs text-gray-500">1-комн. квартира, 42 м²</p>
+                                    </div>
+                                    <i class="fas fa-heart text-red-500"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recommended Collections -->
+                        <div class="bg-white rounded-xl shadow-sm p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-lg font-semibold text-ton-dark">Рекомендуемые подборки</h2>
+                                <button class="text-ton-primary text-sm font-medium">Все подборки</button>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="p-3 bg-ton-light rounded-lg cursor-pointer hover:bg-ton-primary hover:text-white transition duration-200">
+                                    <p class="font-medium">Новостройки у метро</p>
+                                    <p class="text-xs mt-1">12 объектов</p>
+                                </div>
+                                <div class="p-3 bg-ton-light rounded-lg cursor-pointer hover:bg-ton-primary hover:text-white transition duration-200">
+                                    <p class="font-medium">Студии в центре</p>
+                                    <p class="text-xs mt-1">8 объектов</p>
+                                </div>
+                                <div class="p-3 bg-ton-light rounded-lg cursor-pointer hover:bg-ton-primary hover:text-white transition duration-200">
+                                    <p class="font-medium">Семейные квартиры</p>
+                                    <p class="text-xs mt-1">15 объектов</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Documents Page -->
+                <div id="documents-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Мои документы</h1>
+                        
+                        <!-- Upload Area -->
+                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center mb-8 hover:border-ton-primary transition duration-200 bg-gray-50">
+                            <div class="max-w-md mx-auto">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-ton-primary mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-700 mb-2">Перетащите файлы сюда</h3>
+                                <p class="text-sm text-gray-500 mb-4">или</p>
+                                <label class="cursor-pointer">
+                                    <span class="bg-ton-primary hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition duration-200 inline-flex items-center">
+                                        <i class="fas fa-folder-open mr-2"></i> Выберите файлы
+                                        <input type="file" class="hidden" multiple>
+                                    </span>
+                                </label>
+                                <p class="text-xs text-gray-400 mt-4">Поддерживаются: PDF, JPG, PNG до 10MB</p>
+                            </div>
+                        </div>
+
+                        <!-- Documents Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Document Card 1 -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-200">
+                                <div class="bg-blue-50 p-4 flex items-center">
+                                    <div class="bg-white p-3 rounded-lg shadow-sm mr-4">
+                                        <i class="fas fa-file-pdf text-2xl text-red-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-gray-800 truncate">Паспорт.pdf</h3>
+                                        <p class="text-xs text-gray-500">1.2 MB • 12.05.2023</p>
+                                    </div>
+                                    <div class="dropdown relative">
+                                        <button class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-gray-100 flex justify-between">
+                                    <button class="text-ton-primary hover:underline text-sm flex items-center">
+                                        <i class="fas fa-eye mr-1"></i> Просмотреть
+                                    </button>
+                                    <button class="text-gray-500 hover:text-red-500 text-sm flex items-center">
+                                        <i class="fas fa-trash-alt mr-1"></i> Удалить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Document Card 2 -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-200">
+                                <div class="bg-blue-50 p-4 flex items-center">
+                                    <div class="bg-white p-3 rounded-lg shadow-sm mr-4">
+                                        <i class="fas fa-file-image text-2xl text-blue-500"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-gray-800 truncate">Договор.jpg</h3>
+                                        <p class="text-xs text-gray-500">2.5 MB • 28.05.2023</p>
+                                    </div>
+                                    <div class="dropdown relative">
+                                        <button class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-gray-100 flex justify-between">
+                                    <button class="text-ton-primary hover:underline text-sm flex items-center">
+                                        <i class="fas fa-eye mr-1"></i> Просмотреть
+                                    </button>
+                                    <button class="text-gray-500 hover:text-red-500 text-sm flex items-center">
+                                        <i class="fas fa-trash-alt mr-1"></i> Удалить
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Document Card 3 -->
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition duration-200">
+                                <div class="bg-blue-50 p-4 flex items-center">
+                                    <div class="bg-white p-3 rounded-lg shadow-sm mr-4">
+                                        <i class="fas fa-file-word text-2xl text-blue-400"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h3 class="font-medium text-gray-800 truncate">Заявление.doc</h3>
+                                        <p class="text-xs text-gray-500">0.8 MB • 03.06.2023</p>
+                                    </div>
+                                    <div class="dropdown relative">
+                                        <button class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-t border-gray-100 flex justify-between">
+                                    <button class="text-ton-primary hover:underline text-sm flex items-center">
+                                        <i class="fas fa-eye mr-1"></i> Просмотреть
+                                    </button>
+                                    <button class="text-gray-500 hover:text-red-500 text-sm flex items-center">
+                                        <i class="fas fa-trash-alt mr-1"></i> Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Page -->
+                <div id="settings-page" class="hidden">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                        <h1 class="text-2xl font-bold text-ton-dark mb-6">Настройки профиля</h1>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Profile Settings -->
+                            <div class="md:col-span-2">
+                                <div class="bg-white rounded-xl shadow-sm p-6 mb-6 border border-gray-100">
+                                    <h2 class="text-xl font-bold text-ton-dark mb-6 pb-4 border-b border-gray-100">Личные данные</h2>
+                                    <div class="space-y-6">
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <div class="relative">
+                                                <label class="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-500">Имя</label>
+                                                <input type="text" value="Иван" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-ton-primary focus:border-transparent transition duration-200">
+                                            </div>
+                                            <div class="relative">
+                                                <label class="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-500">Фамилия</label>
+                                                <input type="text" value="Петров" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-ton-primary focus:border-transparent transition duration-200">
+                                            </div>
+                                            <div class="relative">
+                                                <label class="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-500">Отчество</label>
+                                                <input type="text" placeholder="Иванович" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-ton-primary focus:border-transparent transition duration-200">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="relative">
+                                            <label class="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-500">Email</label>
+                                            <div class="flex items-center">
+                                                <input type="email" value="ivan.petrov@example.com" class="flex-1 px-4 py-3 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-ton-primary focus:border-transparent transition duration-200">
+                                                <button class="bg-green-100 text-green-700 px-4 py-3 rounded-r-lg text-sm font-medium hover:bg-green-200 transition duration-200">
+                                                    <i class="fas fa-check-circle mr-1"></i> Подтвержден
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="relative">
+                                            <label class="absolute -top-2 left-3 bg-white px-1 text-sm font-medium text-gray-500">Телефон</label>
+                                            <div class="flex items-center">
+                                                <input type="tel" value="+7 (999) 123-45-67" class="flex-1 px-4 py-3 border border-gray-200 rounded-l-lg focus:ring-2 focus:ring-ton-primary focus:border-transparent transition duration-200">
+                                                <button class="bg-yellow-100 text-yellow-700 px-4 py-3 rounded-r-lg text-sm font-medium hover:bg-yellow-200 transition duration-200">
+                                                    <i class="fas fa-exclamation-circle mr-1"></i> Подтвердить
+                                                </button>
+                                            </div>
+                                            <p class="mt-1 text-xs text-gray-500">Мы отправим SMS с кодом подтверждения</p>
+                                        </div>
+                                        
+                                        <div class="pt-4 border-t border-gray-100">
+                                            <button class="bg-ton-primary hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition duration-200 shadow-md hover:shadow-lg">
+                                                Сохранить изменения
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-white rounded-lg shadow-sm p-5">
+                                    <h2 class="text-lg font-semibold text-ton-dark mb-4">Безопасность</h2>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Текущий пароль</label>
+                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Новый пароль</label>
+                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Подтвердите пароль</label>
+                                            <input type="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                        </div>
+                                        <button class="bg-ton-primary hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-200">
+                                            Сохранить изменения
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Profile Picture -->
+                            <div>
+                                <div class="bg-white rounded-lg shadow-sm p-5 sticky top-6">
+                                    <h2 class="text-lg font-semibold text-ton-dark mb-4">Фото профиля</h2>
+                                    <div class="flex flex-col items-center">
+                                        <div class="relative mb-4">
+                                            <img class="w-32 h-32 rounded-full" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User profile">
+                                            <div class="absolute bottom-0 right-0 w-8 h-8 bg-ton-primary rounded-full border-2 border-white flex items-center justify-center">
+                                                <i class="fas fa-camera text-white text-sm"></i>
+                                            </div>
+                                        </div>
+                                        <button class="text-ton-primary hover:underline text-sm mb-6">
+                                            Загрузить новое фото
+                                        </button>
+                                        <div class="w-full">
+                                            <h3 class="text-md font-medium text-ton-dark mb-2">Предпочтения</h3>
+                                            <div class="space-y-2">
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="rounded text-ton-primary" checked>
+                                                    <span class="ml-2 text-sm">Получать уведомления</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="rounded text-ton-primary" checked>
+                                                    <span class="ml-2 text-sm">Получать рекомендации</span>
+                                                </label>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" class="rounded text-ton-primary">
+                                                    <span class="ml-2 text-sm">Показывать в рейтинге</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

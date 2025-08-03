@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Real Estate - Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        /* Tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background: linear-gradient(135deg, #0088cc 0%, #3bafda 100%);
+            color: white;
+            text-align: center;
+            border-radius: 10px;
+            padding: 10px 14px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 136, 204, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tooltip .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: #0088cc transparent transparent transparent;
+            filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Toast notification styles */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #0088cc 0%, #3bafda 100%);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 136, 204, 0.3);
+            display: flex;
+            align-items: center;
+            transform: translateY(100%);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+            color: #1a1a1a;
+        }
+        
+        .ton-gradient {
+            background: linear-gradient(135deg, #0088cc 0%, #3bafda 100%);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #ff5c5c;
+            color: white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        
+        .notification-item:hover {
+            background-color: rgba(0, 136, 204, 0.05);
+        }
+        
+        .dropdown-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        .dropdown-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-exit {
+            opacity: 1;
+        }
+        
+        .dropdown-exit-active {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+        
+        @media (max-width: 640px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col md:flex-row">
+        <!-- Mobile Header -->
+        <div class="md:hidden bg-white shadow-sm p-4 flex justify-between items-center">
+            <button id="mobile-menu-button" class="text-gray-600">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <div class="flex items-center">
+                <div class="relative mr-4">
+                    <button id="notifications-button-mobile" class="text-gray-600 relative">
+                        <i class="far fa-bell text-xl"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                </div>
+                <div class="w-8 h-8 rounded-full ton-gradient flex items-center justify-center text-white font-medium">AT</div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar w-64 bg-white shadow-md fixed md:relative h-full z-10">
+            <div class="p-5">
+                <div class="flex items-center mb-8">
+                    <div class="w-10 h-10 rounded-full ton-gradient flex items-center justify-center text-white mr-3">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">TON Estate</span>
+                </div>
+                
+                <nav class="space-y-1">
+                    <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-home mr-3"></i> Dashboard
+                    </a>
+                    <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-search mr-3"></i> Properties
+                    </a>
+                    <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-users mr-3"></i> Clients
+                    </a>
+                    <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-file-contract mr-3"></i> Contracts
+                    </a>
+                    <a href="#" class="block py-2 px-4 bg-blue-50 text-blue-600 rounded-lg">
+                        <i class="fas fa-bell mr-3"></i> Notifications
+                    </a>
+                    <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-cog mr-3"></i> Settings
+                    </a>
+                </nav>
+                
+                <div class="mt-10 pt-4 border-t border-gray-200">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full ton-gradient flex items-center justify-center text-white font-medium mr-3">AT</div>
+                        <div>
+                            <p class="font-medium text-gray-800">Alex TON</p>
+                            <p class="text-xs text-gray-500">Agent - Premium</p>
+                        </div>
+                    </div>
+                    <button class="mt-4 w-full py-2 px-4 text-sm text-gray-600 hover:bg-blue-50 rounded-lg transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Sign out
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 md:ml-64">
+            <!-- Desktop Header -->
+            <header class="hidden md:flex items-center justify-between bg-white shadow-sm p-4">
+                <h1 class="text-2xl font-bold text-gray-800">Notifications Center</h1>
+                <div class="flex items-center space-x-6">
+                    <div class="relative tooltip">
+                        <button id="notifications-button" class="text-gray-600 hover:text-gray-800 relative">
+                            <i class="far fa-bell text-xl"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                        <span class="tooltip-text">Click to view notifications (3 unread)</span>
+                    </div>
+                    <div class="flex items-center tooltip">
+                        <div class="w-8 h-8 rounded-full ton-gradient flex items-center justify-center text-white font-medium mr-3">AT</div>
+                        <span class="font-medium">Alex TON</span>
+                        <span class="tooltip-text">Premium TON Estate Agent<br>Account settings</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content -->
+            <main class="p-6">
+                <div class="max-w-4xl mx-auto">
+                    <!-- Page Header -->
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">My Notifications</h2>
+                            <p class="text-gray-600">Stay updated with your real estate activities</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-filter mr-2"></i> Filter
+                            </button>
+                            <button id="mark-all-read" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                                <i class="fas fa-check-double mr-2"></i> Mark all as read
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Notification Tabs -->
+                    <div class="flex border-b border-gray-200 mb-6">
+                        <button class="px-4 py-2 font-medium text-blue-600 border-b-2 border-blue-600">All</button>
+                        <button class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">Unread</button>
+                        <button class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">Properties</button>
+                        <button class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">Deals</button>
+                        <button class="px-4 py-2 font-medium text-gray-500 hover:text-gray-700">System</button>
+                    </div>
+
+                    <!-- Notifications List -->
+                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                        <!-- Unread Notifications -->
+                        <div class="border-b border-gray-200 p-4 bg-blue-50">
+                            <h3 class="text-sm font-semibold text-blue-600 uppercase tracking-wider">New notifications</h3>
+                        </div>
+                        
+                        <!-- Notification Item 1 -->
+                        <div class="notification-item border-b border-gray-200 p-4 flex hover:cursor-pointer">
+                            <div class="mr-4 relative">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <div class="absolute top-0 right-0 w-2 h-2 bg-blue-600 rounded-full"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-medium">New property match found!</p>
+                                    <span class="text-xs text-gray-500">Just now</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">A new property matching your client's criteria was listed in Manhattan.</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="tooltip text-xs px-2 py-1 bg-blue-100 text-blue-600 rounded">
+                                        View property
+                                        <span class="tooltip-text" style="width: 140px; bottom: 120%; left: 50%">See details of this listing</span>
+                                    </button>
+                                    <button class="tooltip text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">
+                                        Share with client
+                                        <span class="tooltip-text" style="width: 160px; bottom: 120%; left: 50%">Send property details to your client</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Item 2 -->
+                        <div class="notification-item border-b border-gray-200 p-4 flex hover:cursor-pointer">
+                            <div class="mr-4 relative">
+                                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                <div class="absolute top-0 right-0 w-2 h-2 bg-green-600 rounded-full"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-medium">Offer accepted by seller</p>
+                                    <span class="text-xs text-gray-500">25 min ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Your offer of $850,000 for the property at 124 Central Park West has been accepted.</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-green-100 text-green-600 rounded">View deal</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">Message buyer</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Item 3 -->
+                        <div class="notification-item border-b border-gray-200 p-4 flex hover:cursor-pointer">
+                            <div class="mr-4 relative">
+                                <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="absolute top-0 right-0 w-2 h-2 bg-yellow-600 rounded-full"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-medium">Appointment reminder</p>
+                                    <span class="text-xs text-gray-500">1 hour ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">You have a property showing scheduled for tomorrow at 3:00 PM with the Johnson family.</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-yellow-100 text-yellow-600 rounded">View details</button>
+                                    <button class="text-xs px-2 py-1 bg-gray-100 text-gray-600 rounded">Reschedule</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Read Notifications Header -->
+                        <div class="border-b border-gray-200 p-4">
+                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Earlier</h3>
+                        </div>
+                        
+                        <!-- Notification Item 4 -->
+                        <div class="notification-item border-b border-gray-200 p-4 flex hover:cursor-pointer opacity-80">
+                            <div class="mr-4">
+                                <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-medium">Market update</p>
+                                    <span class="text-xs text-gray-500">Yesterday</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Manhattan prices rose 3.2% in the last quarter. Download the full report.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Item 5 -->
+                        <div class="notification-item border-b border-gray-200 p-4 flex hover:cursor-pointer opacity-80">
+                            <div class="mr-4">
+                                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-medium">Document expired</p>
+                                    <span class="text-xs text-gray-500">2 days ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Your real estate license expires in 30 days. Renew now to avoid suspension.</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-red-100 text-red-600 rounded">Renew now</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Notification Item 6 -->
+                        <div class="notification-item p-4 flex hover:cursor-pointer opacity-80">
+                            <div class="mr-4">
+                                <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                                    <i class="fas fa-user-plus"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <p class="font-medium">New client connected</p>
+                                    <span class="text-xs text-gray-500">1 week ago</span>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">Sarah Miller is looking for a 2-bedroom apartment in Brooklyn with budget up to $1.2M.</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button class="text-xs px-2 py-1 bg-indigo-100 text-indigo-600 rounded">View profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="mt-8 bg-white rounded-xl shadow-sm overflow-hidden">
+                        <div class="border-b border-gray-200 p-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Notification Settings</h3>
+                            <p class="text-sm text-gray-600">Customize how you receive notifications</p>
+                        </div>
+                        
+                        <div class="p-4">
+                            <div class="flex items-center justify-between py-2">
+                                <div>
+                                    <p class="font-medium">New property alerts</p>
+                                    <p class="text-sm text-gray-600">Get notified when new properties matching your criteria are listed</p>
+                                </div>
+                                <label class="tooltip relative inline-flex items-center cursor-pointer">
+                                    <span class="tooltip-text">Toggle to enable/disable these notifications</span>
+                                    <input type="checkbox" value="" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between py-2 border-t border-gray-200">
+                                <div>
+                                    <p class="font-medium">Deal updates</p>
+                                    <p class="text-sm text-gray-600">Receive notifications about offer responses, counter-offers and closings</p>
+                                </div>
+                                <label class="tooltip relative inline-flex items-center cursor-pointer">
+                                    <span class="tooltip-text">Turn on/off this notification type</span>
+                                    <input type="checkbox" value="" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between py-2 border-t border-gray-200">
+                                <div>
+                                    <p class="font-medium">Appointment reminders</p>
+                                    <p class="text-sm text-gray-600">Get reminders about upcoming showings and meetings</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" value="" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            
+                            <div class="flex items-center justify-between py-2 border-t border-gray-200">
+                                <div>
+                                    <p class="font-medium">Market updates</p>
+                                    <p class="text-sm text-gray-600">Receive weekly market analysis and reports</p>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" value="" class="sr-only peer" checked>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Notifications Dropdown (Mobile) -->
+    <div id="notifications-dropdown-mobile" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden">
+        <div class="absolute top-4 right-4 w-72 bg-white rounded-lg shadow-xl overflow-hidden transform transition-all">
+            <div class="p-4 border-b border-gray-200 bg-white flex justify-between items-center">
+                <h3 class="font-medium text-gray-800">Notifications</h3>
+                <button id="close-notifications-mobile" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="max-h-96 overflow-y-auto">
+                <!-- Notification Item -->
+                <div class="p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                            <i class="fas fa-home text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">New property match</p>
+                            <p class="text-xs text-gray-500 mt-1">You have 2 new property matches in Brooklyn</p>
+                            <p class="text-xs text-gray-400 mt-1">2 min ago</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Item -->
+                <div class="p-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-3">
+                            <i class="fas fa-handshake text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Offer accepted</p>
+                            <p class="text-xs text-gray-500 mt-1">Your offer for 124 Central Park was accepted</p>
+                            <p class="text-xs text-gray-400 mt-1">25 min ago</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Notification Item -->
+                <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mr-3">
+                            <i class="fas fa-calendar-check text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">Appointment reminder</p>
+                            <p class="text-xs text-gray-500 mt-1">Showing with Johnson family tomorrow at 3PM</p>
+                            <p class="text-xs text-gray-400 mt-1">1 hour ago</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-3 bg-gray-50 text-center">
+                    <a href="#" class="text-sm font-medium text-blue-600">View all notifications</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast-notification">
+        <i class="fas fa-info-circle mr-2"></i>
+        <span id="toast-message">This is a sample notification</span>
+    </div>
+
+    <script>
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast-notification');
+            const toastMessage = document.getElementById('toast-message');
+            
+            toastMessage.textContent = message;
+            
+            // Set different colors based on type
+            if (type === 'success') {
+                toast.style.backgroundColor = '#28a745';
+            } else if (type === 'warning') {
+                toast.style.backgroundColor = '#ffc107';
+            } else if (type === 'error') {
+                toast.style.backgroundColor = '#dc3545';
+            } else {
+                toast.style.backgroundColor = '#0088cc';
+            }
+            
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('open');
+        });
+
+        // Mobile notifications toggle
+        document.getElementById('notifications-button-mobile').addEventListener('click', function() {
+            document.getElementById('notifications-dropdown-mobile').classList.remove('hidden');
+        });
+
+        document.getElementById('close-notifications-mobile').addEventListener('click', function() {
+            document.getElementById('notifications-dropdown-mobile').classList.add('hidden');
+        });
+
+        // Mark all as read
+        document.getElementById('mark-all-read').addEventListener('click', function() {
+            const notificationIndicator = document.querySelectorAll('.relative .w-2.h-2');
+            notificationIndicator.forEach(indicator => {
+                indicator.classList.add('hidden');
+            });
+            
+            const notificationBadge = document.querySelector('.notification-badge');
+            if (notificationBadge) {
+                notificationBadge.classList.add('hidden');
+            }
+            
+            // Change background of unread header
+            document.querySelector('.bg-blue-50').classList.remove('bg-blue-50');
+            
+            // Show toast notification
+            showToast('All notifications marked as read', 'success');
+        });
+
+        // Notification items click handler
+        const notificationItems = document.querySelectorAll('.notification-item');
+        notificationItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Add logic here for when a notification is clicked
+                console.log('Notification clicked');
+                
+                // Find and hide the unread indicator if it exists
+                const indicator = item.querySelector('.absolute .w-2.h-2');
+                if (indicator) {
+                    indicator.classList.add('hidden');
+                    
+                    // Update notification badge count
+                    const badge = document.querySelector('.notification-badge');
+                    if (badge) {
+                        const currentCount = parseInt(badge.textContent);
+                        if (currentCount > 0) {
+                            badge.textContent = currentCount - 1;
+                            if (currentCount - 1 === 0) {
+                                badge.classList.add('hidden');
+                            }
+                        }
+                    }
+                }
+            });
+        });
+        // Demo toast buttons (can be removed in production)
+        setTimeout(() => {
+            showToast('Welcome back! You have 3 new notifications', 'info');
+        }, 1000);
+
+        // Simulate a new notification coming in
+        setTimeout(() => {
+            showToast('New property matching your search has been listed', 'success');
+        }, 5000);
+    </script>
+</body>
+</html>

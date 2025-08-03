@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TON Жилой комплекс — Шахматка квартир</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ton: {
+                            blue: '#0088CC',
+                            dark: '#1A2332',
+                            light: '#F8FAFE',
+                            accent: '#00A3FF',
+                            secondary: '#45D3FF',
+                            success: '#2CDE8B',
+                            warning: '#FFE181',
+                            muted: '#64748B'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Кастомные стили */
+        body {
+            position: relative;
+        }
+        .apartment-cell {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 8px;
+        }
+        
+        .apartment-cell:hover {
+            transform: scale(1.03) translateY(-2px);
+            z-index: 1001;
+            box-shadow: 0 4px 12px rgba(0, 131, 255, 0.15);
+            border-color: transparent !important;
+        }
+        
+        .apartment-cell:hover > span {
+            opacity: 0;
+        }
+        
+        .apartment-cell:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .floor-label {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+        }
+        
+        .tooltip {
+            opacity: 0;
+            pointer-events: auto;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            border: 1px solid rgba(0, 131, 255, 0.1);
+            border-radius: 12px;
+            color: #1A2332;
+            box-shadow: 0 8px 24px rgba(5, 16, 55, 0.15);
+            padding: 16px;
+            visibility: hidden;
+            font-size: 13px;
+            width: 220px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .tooltip-top {
+            bottom: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip-bottom {
+            top: calc(100% + 5px);
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tooltip-right {
+            left: calc(100% + 5px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip-left {
+            right: calc(100% + 5px);
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .tooltip.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .tooltip-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #161B28;
+            margin-bottom: 6px;
+        }
+
+        .tooltip-price {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0070E0;
+            margin-bottom: 6px;
+        }
+
+        .tooltip-metadata {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .tooltip-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-free {
+            background-color: rgba(44, 222, 139, 0.15);
+            color: #2CDE8B;
+        }
+
+        .status-reserved {
+            background-color: rgba(255, 225, 129, 0.15);
+            color: #FFB800;
+        }
+
+        .status-sold {
+            background-color: rgba(100, 116, 139, 0.1);
+            color: #64748B;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(3px);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-container {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            color: #1f2937;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: #6B7280;
+            cursor: pointer;
+        }
+        
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #161B28;
+            margin-bottom: 15px;
+        }
+        
+        .modal-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0070E0;
+            margin-bottom: 15px;
+        }
+        
+        /* Apartment status colors */
+        .apartment-free {
+            background-color: rgba(44, 222, 139, 0.1);
+            border-color: rgba(44, 222, 139, 0.3);
+        }
+        
+        .apartment-reserved {
+            background-color: rgba(255, 225, 129, 0.15);
+            border-color: rgba(255, 225, 129, 0.3);
+        }
+        
+        .apartment-sold {
+            background: repeating-linear-gradient(
+                -45deg,
+                rgba(100, 116, 139, 0.05),
+                rgba(100, 116, 139, 0.05) 2px,
+                rgba(100, 116, 139, 0.1) 2px,
+                rgba(100, 116, 139, 0.1) 4px
+            );
+            border-color: rgba(100, 116, 139, 0.2);
+        }
+        
+        @media (max-width: 768px) {
+            .floor-label {
+                writing-mode: horizontal-tb;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-ton-light font-sans opacity-0 transition-opacity duration-300">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Выбор жилого комплекса -->
+        <div class="bg-white rounded-2xl shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-bold text-ton-dark mb-6">Выберите жилой комплекс</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button class="flex items-center p-4 border-2 border-ton-blue rounded-xl hover:bg-ton-light transition">
+                    <img src="https://placehold.co/60" alt="TON" class="w-15 h-15 rounded-lg mr-4">
+                    <div class="text-left">
+                        <h3 class="font-bold">TON Complex</h3>
+                        <p class="text-sm text-gray-500">Корпуса 1, 2, 3</p>
+                    </div>
+                </button>
+                <button class="flex items-center p-4 border border-gray-300 rounded-xl hover:bg-ton-light transition">
+                    <img src="https://placehold.co/60" alt="TON Comfort" class="w-15 h-15 rounded-lg mr-4">
+                    <div class="text-left">
+                        <h3 class="font-bold">TON Comfort</h3>
+                        <p class="text-sm text-gray-500">Корпуса A, B</p>
+                    </div>
+                </button>
+                <button class="flex items-center p-4 border border-gray-300 rounded-xl hover:bg-ton-light transition">
+                    <img src="https://placehold.co/60" alt="TON Business" class="w-15 h-15 rounded-lg mr-4">
+                    <div class="text-left">
+                        <h3 class="font-bold">TON Business</h3>
+                        <p class="text-sm text-gray-500">Башня 1, Башня 2</p>
+                    </div>
+                </button>
+                <button class="flex items-center p-4 border border-gray-300 rounded-xl hover:bg-ton-light transition">
+                    <img src="https://placehold.co/60" alt="TON Премиум" class="w-15 h-15 rounded-lg mr-4">
+                    <div class="text-left">
+                        <h3 class="font-bold">TON Премиум</h3>
+                        <p class="text-sm text-gray-500">VIP класс</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Заголовок -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-ton-dark mb-3">TON Living Complex</h1>
+            <p class="text-ton-blue max-w-2xl mx-auto">Выберите квартиру своей мечты в современном жилом комплексе, вдохновленном философией The Open Network</p>
+        </div>
+        
+        <!-- Фильтры в стиле TON -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-ton-light">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-ton-dark">Подбор квартир</h2>
+                <div class="flex items-center space-x-4">
+                    <button class="text-ton-blue hover:text-ton-accent transition">
+                        <i class="fas fa-filter mr-1"></i> Фильтры
+                    </button>
+                    <button class="text-ton-muted hover:text-ton-dark transition">
+                        <i class="fas fa-heart mr-1"></i> Избранное
+                    </button>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <!-- Блок 1: Корпус и статус -->
+                <div class="space-y-4">
+                    <div class="relative">
+                        <label class="block text-sm font-medium text-ton-muted mb-2">Корпус</label>
+                        <div class="relative">
+                            <select class="w-full px-4 py-3 rounded-xl border border-ton-light bg-white text-ton-dark focus:ring-2 focus:ring-ton-blue focus:border-transparent appearance-none">
+                                <option selected>Все корпуса</option>
+                                <option>Корпус 1</option>
+                                <option>Корпус 2</option>
+                                <option>Корпус 3</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-ton-muted">
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-ton-muted mb-2">Статус</label>
+                        <div class="inline-flex rounded-lg shadow-sm" role="group">
+                            <button type="button" class="px-4 py-2 text-sm font-medium text-ton-dark bg-white border border-ton-light rounded-s-lg hover:bg-ton-light/50 transition">
+                                Все
+                            </button>
+                            <button type="button" class="px-4 py-2 text-sm font-medium text-ton-success bg-ton-light/20 border-y border-y-ton-light hover:bg-ton-light/50 transition">
+                                <i class="fas fa-circle text-ton-success mr-1 text-xs"></i> Свободно
+                            </button>
+                            <button type="button" class="px-4 py-2 text-sm font-medium text-ton-warning bg-ton-light/20 border border-ton-light rounded-e-lg hover:bg-ton-light/50 transition">
+                                <i class="fas fa-clock text-ton-warning mr-1 text-xs"></i> Бронь
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок 2: Планировка -->
+                <div>
+                    <label class="block text-sm font-medium text-ton-muted mb-2">Планировка</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button class="px-3 py-2 bg-ton-blue/10 text-ton-blue rounded-xl border border-ton-blue/20 font-medium text-sm hover:bg-ton-blue/20 transition">
+                            Все
+                        </button>
+                        <button class="px-3 py-2 bg-[#B8CDFF] text-ton-dark rounded-xl font-medium text-sm hover:bg-[#A8C8FF] transition">
+                            1
+                        </button>
+                        <button class="px-3 py-2 bg-[#A8D8FF] text-ton-dark rounded-xl font-medium text-sm hover:bg-[#98C8FF] transition">
+                            2
+                        </button>
+                        <button class="px-3 py-2 bg-[#95DBF2] text-ton-dark rounded-xl font-medium text-sm hover:bg-[#85CBE2] transition">
+                            3
+                        </button>
+                        <button class="px-3 py-2 bg-[#8CD8E5] text-ton-dark rounded-xl font-medium text-sm hover:bg-[#7CC8D5] transition">
+                            4+
+                        </button>
+                        <button class="px-3 py-2 bg-[#84D1D1] text-ton-dark rounded-xl font-medium text-sm hover:bg-[#74C1C1] transition">
+                            Студия
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Блок 3: Площадь -->
+                <div>
+                    <label class="block text-sm font-medium text-ton-muted mb-2">Площадь, м²</label>
+                    <div class="bg-ton-light/20 p-4 rounded-xl">
+                        <div class="slider-container mb-3">
+                            <div class="flex justify-between text-xs text-ton-muted mb-2">
+                                <span>30</span>
+                                <span>150</span>
+                            </div>
+                            <input type="range" min="30" max="150" value="90" class="w-full accent-ton-blue h-2 rounded-lg">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-ton-muted mb-1">От</label>
+                                <input type="text" value="30" class="w-full px-3 py-2 border border-ton-light rounded-lg bg-white text-sm focus:ring-ton-blue focus:border-ton-blue">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-ton-muted mb-1">До</label>
+                                <input type="text" value="150" class="w-full px-3 py-2 border border-ton-light rounded-lg bg-white text-sm focus:ring-ton-blue focus:border-ton-blue">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Блок 4: Цена и валюта -->
+                <div>
+                    <label class="block text-sm font-medium text-ton-muted mb-2">Цена</label>
+                    <div class="bg-ton-light/20 p-4 rounded-xl">
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs text-ton-muted mb-1">От</label>
+                                <input type="text" value="5 000 000" class="w-full px-3 py-2 border border-ton-light rounded-lg bg-white text-sm focus:ring-ton-blue focus:border-ton-blue">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-ton-muted mb-1">До</label>
+                                <input type="text" value="20 000 000" class="w-full px-3 py-2 border border-ton-light rounded-lg bg-white text-sm focus:ring-ton-blue focus:border-ton-blue">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Доп. фильтры и кнопки -->
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button class="text-ton-blue hover:text-ton-accent text-sm transition flex items-center" id="toggleFiltersBtn">
+                        <i class="fas fa-plus-circle mr-1"></i> Доп. параметры
+                    </button>
+                    <div class="hidden items-center space-x-4 text-sm" id="additionalFilters">
+                        <div class="flex items-center">
+                            <input id="balcony" type="checkbox" class="w-4 h-4 text-ton-blue focus:ring-ton-blue border-ton-light rounded">
+                            <label for="balcony" class="ml-2 text-ton-muted hover:text-ton-dark cursor-pointer">Балкон</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="finishing" type="checkbox" class="w-4 h-4 text-ton-blue focus:ring-ton-blue border-ton-light rounded">
+                            <label for="finishing" class="ml-2 text-ton-muted hover:text-ton-dark cursor-pointer">Отделка</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input id="parking" type="checkbox" class="w-4 h-4 text-ton-blue focus:ring-ton-blue border-ton-light rounded">
+                            <label for="parking" class="ml-2 text-ton-muted hover:text-ton-dark cursor-pointer">Паркинг</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="px-4 py-2 text-ton-blue hover:text-ton-accent transition">
+                        Сбросить
+                    </button>
+                    <button class="px-6 py-2 bg-ton-blue text-white rounded-lg hover:bg-ton-accent transition font-medium flex items-center">
+                        Показать <span class="ml-2 bg-white/30 px-2 py-0.5 rounded-full text-xs">24</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Легенда -->
+        <div class="flex flex-wrap gap-4 mb-8 justify-center bg-ton-light/50 px-6 py-4 rounded-2xl">
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#B8CDFF] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">Студии</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#A8D8FF] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">1 и 1Е</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#95DBF2] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">2 и 2Е</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#8CD8E5] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">3-комнатные</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#84D1D1] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">4+-комнатные</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#2CDE8B] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">Свободно</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#FFE181] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">Забронировано</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#F3F4F6] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">Продано</span>
+            </div>
+            <div class="flex items-center">
+                <div class="w-5 h-5 bg-[#E5E7EB] rounded-lg mr-2"></div>
+                <span class="text-sm font-medium text-ton-dark/80">Общие помещения</span>
+            </div>
+        </div>
+        
+        <!-- Шахматка -->
+        <div class="bg-white rounded-2xl shadow-[0_2px_30px_rgba(5,16,55,0.05)] p-6 overflow-x-auto">
+            <div class="flex min-w-max">
+                <!-- Пустая ячейка для выравнивания -->
+                <div class="w-16 flex-shrink-0"></div>
+                
+                <!-- Номера квартир (столбцы) -->
+                <div class="flex">
+                    <div class="w-24 h-10 flex items-center justify-center bg-ton-blue/10 rounded-lg font-medium text-ton-blue border border-ton-blue/20"><i class="fas fa-elevator"></i> Лифт</div>
+                    <div class="w-24 h-10 flex items-center justify-center bg-ton-blue/5 rounded-lg font-medium text-ton-blue"><i class="fas fa-stairs"></i> Лестница</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">1</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">2</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">3</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">4</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">5</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">6</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">7</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">8</div>
+                    <div class="w-24 h-10 flex items-center justify-center font-medium text-ton-dark/90">9</div>
+                </div>
+            </div>
+            
+            <!-- Строчки (этажи) -->
+            <div class="flex min-w-max">
+                <!-- Номера этажей (строчки) -->
+                <div class="w-16 flex-shrink-0 flex flex-col">
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">10</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">9</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">8</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">7</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">6</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">5</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">4</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">3</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">2</div>
+                    <div class="h-16 font-medium flex items-center justify-center text-ton-dark">1</div>
+                </div>
+                
+                <!-- Квартиры -->
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <div class="flex">
+                        <!-- 10 этаж -->
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative bg-[#2CDE8B]">
+                            <span class="text-xs font-medium">1</span>
+                            <span class="text-xs">45.2 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">1-комнатная квартира</div>
+                                <div class="tooltip-price">7 500 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>45.2 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-free">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>Свободно</span>
+                                </div>
+                                <button class="mt-4 w-full bg-ton-blue text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center justify-center" data-type="1-комнатная" data-price="7 500 000 ₽">
+                                    Подробнее о квартире <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-reserved border flex flex-col items-center justify-center cursor-pointer relative bg-[#FFE181]">
+                            <span class="text-xs font-medium">2</span>
+                            <span class="text-xs">68.5 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">2-комнатная квартира</div>
+                                <div class="tooltip-price">9 800 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>68.5 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-reserved">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>Забронировано</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-reserved border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">3</span>
+                            <span class="text-xs">79.3 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">3-комнатная квартира</div>
+                                <div class="tooltip-price">12 500 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>79.3 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-reserved">
+                                    <i class="fas fa-clock mr-2"></i>
+                                    <span>Забронировано</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-blue/5 rounded flex items-center justify-center border border-ton-blue/20">
+                            <i class="fas fa-elevator text-ton-blue"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">10-4</span>
+                            <span class="text-xs">42.8 м²</span>
+                            <div class="tooltip absolute bottom-full mb-2 w-48 bg-ton-dark text-white text-sm p-3 rounded-lg shadow-lg">
+                                <div class="flex justify-between mb-1">
+                                    <span>1</span>
+                                    <span class="font-semibold">6 800 000 ₽</span>
+                                </div>
+                                <div class="text-xs opacity-80">Этаж: 10/10</div>
+                                <div class="text-xs opacity-80">Площадь: 42.8 м²</div>
+                                <div class="text-xs opacity-80 mb-1">Статус: <span class="text-green-300 font-medium">Свободно</span></div>
+                                <div class="text-xs opacity-80">Отделка: Стандарт</div>
+                                <button class="mt-2 w-full bg-ton-accent text-white py-1 rounded text-sm hover:bg-blue-600 transition">Подробнее</button>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">5</span>
+                            <span class="text-xs">65.1 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">2-комнатная квартира</div>
+                                <div class="tooltip-price">9 200 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>65.1 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-free">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>Свободно</span>
+                                </div>
+                                <button class="mt-4 w-full bg-ton-blue text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center justify-center">
+                                    Подробнее о квартире <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-light/30 border border-ton-light flex items-center justify-center">
+                            <i class="fas fa-stairs text-ton-dark"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-sold border flex flex-col items-center justify-center cursor-not-allowed relative bg-[#F3F4F6]">
+                            <span class="text-xs font-medium">6</span>
+                            <span class="text-xs">Продано</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">2-комнатная квартира</div>
+                                <div class="tooltip-price">10 200 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>67.2 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-sold">
+                                    <i class="fas fa-times-circle mr-2"></i>
+                                    <span>Продано</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-[#8CD8E5] border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">7</span>
+                            <span class="text-xs">92.4 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">3-комнатная квартира</div>
+                                <div class="tooltip-price">13 500 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>92.4 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-free">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>Свободно</span>
+                                </div>
+                                <button class="mt-4 w-full bg-ton-blue text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center justify-center">
+                                    Подробнее о квартире <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-blue/5 rounded flex items-center justify-center border border-ton-blue/20">
+                            <i class="fas fa-elevator text-ton-blue/80"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-[#A8D8FF] border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8</span>
+                            <span class="text-xs">39.7 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">1-комнатная квартира</div>
+                                <div class="tooltip-price">6 200 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>39.7 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-free">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>Свободно</span>
+                                </div>
+                                <button class="mt-4 w-full bg-ton-blue text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center justify-center">
+                                    Подробнее о квартире <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-[#95DBF2] border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9</span>
+                            <span class="text-xs">72.6 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">2-комнатная квартира</div>
+                                <div class="tooltip-price">9 800 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>10 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>72.6 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-free">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>Свободно</span>
+                                </div>
+                                <button class="mt-4 w-full bg-ton-blue text-white py-2 rounded-lg text-sm hover:bg-blue-700 transition flex items-center justify-center">
+                                    Подробнее о квартире <i class="fas fa-chevron-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 9 этаж -->
+                    <div class="flex">
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">9-1</span>
+                            <span class="text-xs">45.2 м²</span>
+                            <div class="tooltip">
+                                <div class="tooltip-title">1-комнатная квартира</div>
+                                <div class="tooltip-price">7 200 000 ₽</div>
+                                <div class="tooltip-metadata">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-layer-group text-ton-blue/70 mr-2"></i>
+                                        <span>9 этаж</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <i class="fas fa-ruler-combined text-ton-blue/70 mr-2"></i>
+                                        <span>45.2 м²</span>
+                                    </div>
+                                </div>
+                                <div class="tooltip-status status-free">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    <span>Свободно</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-reserved border border-white flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">9-2</span>
+                            <span class="text-xs">68.5 м²</span>
+                            <div class="tooltip absolute bottom-full mb-2 w-48 bg-ton-dark text-white text-sm p-3 rounded-lg shadow-lg">
+                                <div class="flex justify-between mb-1">
+                                    <span>2-комнатная</span>
+                                    <span class="font-semibold">8 900 000 ₽</span>
+                                </div>
+                                <div class="text-xs opacity-80">Квартира №9-2</div>
+                                <div class="text-xs opacity-80">Этаж: 9/10</div>
+                                <div class="text-xs opacity-80">Площадь: 68.5 м²</div>
+                                <div class="text-xs opacity-80 mb-1">Статус: <span class="text-yellow-300 font-medium">Забронировано</span></div>
+                                <button class="mt-2 w-full bg-ton-accent text-white py-1 rounded text-sm hover:bg-ton-blue transition">
+                                    Подробнее <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-[#B8CDFF] border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9-3</span>
+                            <span class="text-xs">79.3 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-blue/5 rounded flex items-center justify-center border border-ton-blue/20">
+                            <i class="fas fa-elevator text-ton-blue"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9-4</span>
+                            <span class="text-xs">42.8 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9-5</span>
+                            <span class="text-xs">65.1 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-light/30 border border-ton-light flex items-center justify-center">
+                            <i class="fas fa-stairs text-ton-dark"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9-6</span>
+                            <span class="text-xs">67.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-red-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9-7</span>
+                            <span class="text-xs">92.4 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-blue/5 rounded flex items-center justify-center border border-ton-blue/20">
+                            <i class="fas fa-elevator text-ton-blue/80"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">9-8</span>
+                            <span class="text-xs">39.7 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-sold border border-white flex flex-col items-center justify-center cursor-not-allowed relative">
+                            <span class="text-xs font-medium">9-9</span>
+                            <span class="text-xs">Продано</span>
+                            <div class="tooltip absolute bottom-full mb-2 w-48 bg-ton-dark text-white text-sm p-3 rounded-lg shadow-lg">
+                                <div class="flex justify-between mb-1">
+                                    <span>2-комнатная</span>
+                                    <span class="font-semibold">8 200 000 ₽</span>
+                                </div>
+                                <div class="text-xs opacity-80">Квартира №9-9</div>
+                                <div class="text-xs opacity-80">Этаж: 9/10</div>
+                                <div class="text-xs opacity-80">Площадь: 72.6 м²</div>
+                                <div class="text-xs opacity-80 mb-1">Статус: <span class="text-gray-300 font-medium">Продано</span></div>
+                                <div class="text-xs italic opacity-80">Свяжитесь с менеджером для подбора похожих квартир</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Остальные этажи (для краткости показаны только 10 и 9, в реальном проекте должны быть все) -->
+                    <div class="flex">
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-1</span>
+                            <span class="text-xs">45.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-2</span>
+                            <span class="text-xs">68.5 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-yellow-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-3</span>
+                            <span class="text-xs">79.3 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-blue/5 rounded flex items-center justify-center border border-ton-blue/20">
+                            <i class="fas fa-elevator text-ton-blue/80"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-4</span>
+                            <span class="text-xs">42.8 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-5</span>
+                            <span class="text-xs">65.1 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-light/30 border border-ton-light flex items-center justify-center">
+                            <i class="fas fa-stairs text-ton-dark"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-6</span>
+                            <span class="text-xs">67.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-red-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-7</span>
+                            <span class="text-xs">92.4 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-ton-blue/5 rounded flex items-center justify-center border border-ton-blue/20">
+                            <i class="fas fa-elevator text-ton-blue"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-8</span>
+                            <span class="text-xs">39.7 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">8-9</span>
+                            <span class="text-xs">72.6 м²</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 7 этаж -->
+                    <div class="flex">
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-1</span>
+                            <span class="text-xs">45.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-reserved border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-2</span>
+                            <span class="text-xs">68.5 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-3</span>
+                            <span class="text-xs">79.3 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-[#E5E7EB] border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-4</span>
+                            <span class="text-xs">42.8 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-5</span>
+                            <span class="text-xs">65.1 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-[#E5E7EB] border border-white flex items-center justify-center">
+                            <i class="fas fa-stairs text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-sold border flex flex-col items-center justify-center cursor-not-allowed relative">
+                            <span class="text-xs font-medium">7-6</span>
+                            <span class="text-xs">67.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-7</span>
+                            <span class="text-xs">92.4 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-[#E5E7EB] border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-8</span>
+                            <span class="text-xs">39.7 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">7-9</span>
+                            <span class="text-xs">72.6 м²</span>
+                        </div>
+                    </div>
+
+                    <!-- 6 этаж -->
+                    <div class="flex">
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-1</span>
+                            <span class="text-xs">45.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-2</span>
+                            <span class="text-xs">68.5 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-3</span>
+                            <span class="text-xs">79.3 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-[#E5E7EB] border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-4</span>
+                            <span class="text-xs">42.8 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-5</span>
+                            <span class="text-xs">65.1 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-[#E5E7EB] border border-white flex items-center justify-center">
+                            <i class="fas fa-stairs text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-6</span>
+                            <span class="text-xs">67.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-7</span>
+                            <span class="text-xs">92.4 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-[#E5E7EB] border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-8</span>
+                            <span class="text-xs">39.7 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 apartment-free border flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">6-9</span>
+                            <span class="text-xs">72.6 м²</span>
+                        </div>
+                    </div>
+
+                    
+                    <!-- 5 этаж -->
+                    <div class="flex">
+                        <div class="apartment-cell w-24 h-16 apartment-free border border-white flex flex-col items-center justify-center cursor-pointer relative">
+                            <span class="text-xs font-medium">5-1</span>
+                            <span class="text-xs">45.2 м²</span>
+                            <div class="tooltip absolute bottom-full mb-2 w-48 bg-ton-dark text-white text-sm p-3 rounded-lg shadow-lg">
+                                <div class="flex justify-between mb-1">
+                                    <span>1-комнатная</span>
+                                    <span class="font-semibold">6 500 000 ₽</span>
+                                </div>
+                                <div class="text-xs opacity-80">Квартира №5-1</div>
+                                <div class="text-xs opacity-80">Этаж: 5/10</div>
+                                <div class="text-xs opacity-80">Площадь: 45.2 м²</div>
+                                <div class="text-xs opacity-80 mb-1">Статус: <span class="text-green-300 font-medium">Свободно</span></div>
+                                <button class="mt-2 w-full bg-ton-accent text-white py-1 rounded text-sm hover:bg-ton-blue transition">
+                                    Подробнее <i class="fas fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-2</span>
+                            <span class="text-xs">68.5 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-yellow-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-3</span>
+                            <span class="text-xs">79.3 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-gray-100 border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-4</span>
+                            <span class="text-xs">42.8 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-5</span>
+                            <span class="text-xs">65.1 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-gray-100 border border-white flex items-center justify-center">
+                            <i class="fas fa-stairs text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-6</span>
+                            <span class="text-xs">67.2 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-red-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-7</span>
+                            <span class="text-xs">92.4 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-gray-100 border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-8</span>
+                            <span class="text-xs">39.7 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">5-9</span>
+                            <span class="text-xs">72.6 м²</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 1 этаж -->
+                    <div class="flex">
+                        <div class="apartment-cell w-24 h-16 bg-[#84D1D1] border border-gray-300 flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-1</span>
+                            <span class="text-xs">Кладовка</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-gray-200 border border-gray-300 flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-2</span>
+                            <span class="text-xs">Магазин</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-yellow-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-3</span>
+                            <span class="text-xs">79.3 м²</span>
+                        </div>
+                        <div class="w-24 h-16 bg-gray-100 border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-gray-200 border border-gray-300 flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-4</span>
+                            <span class="text-xs">Лобби</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-gray-200 border border-gray-300 flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-5</span>
+                            <span class="text-xs">Общее</span>
+                        </div>
+                        <div class="w-24 h-16 bg-gray-100 border border-white flex items-center justify-center">
+                            <i class="fas fa-stairs text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-gray-200 border border-gray-300 flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-6</span>
+                            <span class="text-xs">Лифт</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-gray-200 border border-gray-300 flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-7</span>
+                            <span class="text-xs">ТО</span>
+                        </div>
+                        <div class="w-24 h-16 bg-gray-100 border border-white flex items-center justify-center">
+                            <i class="fas fa-lift text-gray-500"></i>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-blue-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-8</span>
+                            <span class="text-xs">39.7 м²</span>
+                        </div>
+                        <div class="apartment-cell w-24 h-16 bg-green-100 border border-white flex flex-col items-center justify-center cursor-pointer">
+                            <span class="text-xs font-medium">1-9</span>
+                            <span class="text-xs">72.6 м²</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Подвал шахматки -->
+        <div class="mt-8 flex justify-between items-center">
+            <div class="text-sm text-ton-muted counters">
+                Всего свободно: <span class="font-semibold text-ton-success">32</span> | 
+                Забронировано: <span class="font-semibold text-ton-warning">5</span> | 
+                Продано: <span class="font-semibold text-ton-muted">12</span>
+            </div>
+            <button class="bg-ton-blue text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center">
+                <i class="fas fa-download mr-2"></i>
+                Скачать PDF план
+            </button>
+        </div>
+        
+    </div>
+    
+    <script>
+        // Loading animation
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                document.body.classList.remove('opacity-0');
+                document.body.classList.add('opacity-100');
+            }, 100);
+        });
+
+        // Toggle additional filters
+        document.getElementById('toggleFiltersBtn').addEventListener('click', function() {
+            const additionalFilters = document.getElementById('additionalFilters');
+            const icon = this.querySelector('i');
+            
+            additionalFilters.classList.toggle('flex');
+            additionalFilters.classList.toggle('hidden');
+            
+            if (additionalFilters.classList.contains('hidden')) {
+                icon.classList.replace('fa-minus-circle', 'fa-plus-circle');
+            } else {
+                icon.classList.replace('fa-plus-circle', 'fa-minus-circle');
+                // For mobile - make it a column layout
+                if (window.innerWidth < 768) {
+                    additionalFilters.classList.add('flex-col', 'space-y-4', 'space-x-0');
+                    additionalFilters.classList.remove('space-x-4');
+                }
+            }
+        });
+
+        // Update counters dynamically
+        function updateCounters() {
+            const freeCount = document.querySelectorAll('.apartment-free').length;
+            const reservedCount = document.querySelectorAll('.apartment-reserved').length;
+            const soldCount = document.querySelectorAll('.apartment-sold').length;
+            
+            document.querySelector('.counters').innerHTML = `
+                Всего свободно: <span class="font-semibold text-ton-success">${freeCount}</span> | 
+                Забронировано: <span class="font-semibold text-ton-warning">${reservedCount}</span> | 
+                Продано: <span class="font-semibold text-ton-muted">${soldCount}</span>
+            `;
+        }
+
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalClose = document.getElementById('modalClose');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalPrice = document.getElementById('modalPrice');
+        const modalMetadata = document.getElementById('modalMetadata');
+        const modalStatus = document.getElementById('modalStatus');
+        
+        document.querySelectorAll('.apartment-cell').forEach(cell => {
+            const tooltip = cell.querySelector('.tooltip');
+            if (tooltip) {
+                document.body.appendChild(tooltip);
+                
+                cell.addEventListener('mouseenter', function() {
+                    const rect = this.getBoundingClientRect();
+                    tooltip.style.left = `${rect.right + window.scrollX + 8}px`;
+                    tooltip.style.top = `${rect.top + window.scrollY}px`;
+                    tooltip.classList.add('active');
+                });
+
+                cell.addEventListener('mouseleave', function() {
+                    setTimeout(() => {
+                        if (!tooltip.matches(':hover')) {
+                            tooltip.classList.remove('active');
+                        }
+                    }, 200);
+                });
+
+                tooltip.addEventListener('mouseleave', function() {
+                    setTimeout(() => {
+                        if (!cell.matches(':hover') && !this.matches(':hover')) {
+                            this.classList.remove('active');
+                        }
+                    }, 200);
+                });
+                
+                // Handle "Подробнее" button click
+                const detailsBtn = tooltip.querySelector('button');
+                if(detailsBtn) {
+                    detailsBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        
+                        // Get all data from tooltip
+                        modalTitle.textContent = tooltip.querySelector('.tooltip-title').textContent;
+                        modalPrice.textContent = tooltip.querySelector('.tooltip-price').textContent;
+                        modalMetadata.innerHTML = tooltip.querySelector('.tooltip-metadata').innerHTML;
+                        modalStatus.innerHTML = tooltip.querySelector('.tooltip-status').innerHTML;
+                        
+                        // Show modal
+                        modalOverlay.style.display = 'flex';
+                        
+                        // Add apartment number to title
+                        const apartmentNumber = cell.querySelector('span:first-child').textContent;
+                        modalTitle.textContent = `${apartmentNumber} – ${modalTitle.textContent}`;
+                    });
+                }
+            }
+
+            if(!cell.classList.contains('cursor-not-allowed')) {
+                cell.addEventListener('click', function() {
+                    const apartmentNumber = this.querySelector('span:first-child').textContent;
+                    const apartmentType = this.dataset.type || '1-комнатная';
+                    const apartmentPrice = this.dataset.price || '6 500 000 ₽';
+                    
+                    modalTitle.textContent = `${apartmentNumber} – ${apartmentType} квартира`;
+                    modalPrice.textContent = apartmentPrice;
+                    
+                    // Show modal
+                    modalOverlay.style.display = 'flex';
+                });
+            }
+        });
+        
+        // Close modal handlers
+        modalClose.addEventListener('click', function() {
+            modalOverlay.style.display = 'none';
+        });
+        
+        modalOverlay.addEventListener('click', function(e) {
+            if(e.target === modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        });
+    </script>
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-container">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-price" id="modalPrice"></div>
+            <div class="tooltip-metadata" id="modalMetadata"></div>
+            <div class="tooltip-status" id="modalStatus"></div>
+            <div class="mt-4">
+                <button class="w-full bg-ton-blue text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium mb-2">
+                    Забронировать квартиру
+                </button>
+                <button class="w-full border border-ton-blue text-ton-blue py-2 rounded-lg hover:bg-ton-light transition">
+                    Заказать звонок
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

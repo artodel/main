@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вакансии | Кешбек за новостройки</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ton: {
+                            blue: '#0088cc',
+                            dark: '#222426',
+                            light: '#f5f5f5',
+                            accent: '#00a3e0',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, #0088cc, #00a3e0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(0,136,204,0.1) 0%, rgba(0,163,224,0.1) 100%);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 136, 204, 0.15);
+        }
+        
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-ton-light text-ton-dark">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-ton-blue flex items-center justify-center text-white font-bold text-xl">K</div>
+                <span class="ml-3 text-xl font-bold gradient-text">КешбекНовострой</span>
+            </a>
+            <nav class="hidden md:flex space-x-8">
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Главная</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Кешбек</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Новостройки</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Блог</a>
+                <a href="#" class="text-ton-blue font-medium">Вакансии</a>
+                <a href="#" class="text-ton-dark hover:text-ton-blue transition-all">Контакты</a>
+            </nav>
+            <div class="flex items-center space-x-4">
+                <a href="#" class="hidden md:block px-4 py-2 rounded-md bg-ton-blue text-white hover:bg-opacity-90 transition-all">Войти</a>
+                <button class="md:hidden text-ton-dark">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient py-16 md:py-24">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">Станьте частью нашей команды</h1>
+                <p class="text-xl text-gray-600 mb-8">Мы растем и ищем талантливых специалистов для развития сервиса кешбека за новостройки</p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#open-positions" class="px-6 py-3 bg-ton-blue text-white rounded-md hover:bg-opacity-90 transition-all font-medium">Открытые вакансии</a>
+                    <a href="#why-us" class="px-6 py-3 bg-white text-ton-blue border border-ton-blue rounded-md hover:bg-ton-blue hover:bg-opacity-10 transition-all font-medium">Почему мы?</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Join Us Section -->
+    <section class="py-16 bg-white" id="why-us">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-12 text-center gradient-text">Почему стоит работать у нас?</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-ton-light rounded-xl p-6">
+                    <div class="w-12 h-12 rounded-full bg-ton-blue mb-4 flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Быстрый рост</h3>
+                    <p class="text-gray-600">Возможности для карьерного развития в быстрорастущей компании</p>
+                </div>
+                <div class="bg-ton-light rounded-xl p-6">
+                    <div class="w-12 h-12 rounded-full bg-ton-blue mb-4 flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Конкурентная оплата</h3>
+                    <p class="text-gray-600">Высокие зарплаты и бонусы за результаты</p>
+                </div>
+                <div class="bg-ton-light rounded-xl p-6">
+                    <div class="w-12 h-12 rounded-full bg-ton-blue mb-4 flex items-center justify-center text-white text-xl">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Комфортные условия</h3>
+                    <p class="text-gray-600">Гибкий график, современный офис и забота о сотрудниках</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Open Positions Section -->
+    <section class="py-16 bg-gray-50" id="open-positions">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-12 text-center gradient-text">Открытые вакансии</h2>
+            
+            <!-- Vacancy 1 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm mb-8 card-hover transition-all">
+                <div class="p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold mb-1">Менеджер по продажам</h3>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Продажи</span>
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Недвижимость</span>
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Опыт от 1 года</span>
+                            </div>
+                        </div>
+                        <div class="text-ton-blue font-medium text-lg mb-3 md:mb-0 md:ml-4">от 80 000 ₽</div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Работа с клиентами, консультации по кешбеку, сопровождение сделок</p>
+                    <div class="flex flex-wrap justify-between items-center">
+                        <div class="flex items-center text-gray-500 text-sm mb-2 sm:mb-0">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Краснодар / Удаленно
+                        </div>
+                        <a href="#" class="px-4 py-2 bg-ton-blue text-white rounded-md hover:bg-opacity-90 transition-all text-sm">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vacancy 2 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm mb-8 card-hover transition-all">
+                <div class="p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold mb-1">SMM-специалист</h3>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Маркетинг</span>
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Соцсети</span>
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Опыт от 2 лет</span>
+                            </div>
+                        </div>
+                        <div class="text-ton-blue font-medium text-lg mb-3 md:mb-0 md:ml-4">от 90 000 ₽</div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Развитие соцсетей компании, создание контента, работа с аудиторией</р>
+                    <div class="flex flex-wrap justify-between items-center">
+                        <div class="flex items-center text-gray-500 text-sm mb-2 sm:mb-0">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Краснодар / Удаленно
+                        </div>
+                        <a href="#" class="px-4 py-2 bg-ton-blue text-white rounded-md hover:bg-opacity-90 transition-all text-sm">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vacancy 3 -->
+            <div class="bg-white rounded-xl overflow-hidden shadow-sm mb-8 card-hover transition-all">
+                <div class="p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h3 class="text-xl md:text-2xl font-bold mb-1">Юрист по недвижимости</h3>
+                            <div class="flex flex-wrap gap-2 mb-3">
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Право</span>
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">ДДУ</span>
+                                <span class="px-3 py-1 bg-ton-light text-ton-dark rounded-full text-sm">Опыт от 3 лет</span>
+                            </div>
+                        </div>
+                        <div class="text-ton-blue font-medium text-lg mb-3 md:mb-0 md:ml-4">от 120 000 ₽</div>
+                    </div>
+                    <p class="text-gray-600 mb-4">Проверка документов застройщиков, консультации клиентов, юридическое сопровождение</p>
+                    <div class="flex flex-wrap justify-between items-center">
+                        <div class="flex items-center text-gray-500 text-sm mb-2 sm:mb-0">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Краснодар
+                        </div>
+                        <a href="#" class="px-4 py-2 bg-ton-blue text-white rounded-md hover:bg-opacity-90 transition-all text-sm">Подробнее</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Apply Section -->
+    <section class="py-16 bg-gradient-to-r from-ton-blue to-ton-accent text-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-6">Отправьте свое резюме</h2>
+                <p class="text-xl mb-8 opacity-90">Даже если не нашли подходящую вакансию - присылайте резюме, мы рассмотрим вас для будущих позиций</p>
+                <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+                    <div class="relative w-full">
+                        <input type="file" id="resume" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <label for="resume" class="flex items-center justify-between px-6 py-3 rounded-md flex-grow bg-white bg-opacity-20 placeholder-white border border-white border-opacity-30 hover:bg-opacity-30 transition-all">
+                            <span>Выберите файл</span>
+                            <i class="fas fa-cloud-upload-alt ml-2"></i>
+                        </label>
+                    </div>
+                    <button type="submit" class="px-6 py-3 bg-white text-ton-blue rounded-md hover:bg-opacity-90 transition-all font-medium">Отправить</button>
+                </form>
+            </div>
+        </div>
+    </section>
+   
+
+    <!-- Footer -->
+    <footer class="bg-ton-dark text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <a href="#" class="flex items-center mb-4">
+                        <div class="w-10 h-10 rounded-full bg-ton-blue flex items-center justify-center text-white font-bold text-xl">K</div>
+                        <span class="ml-3 text-xl font-bold text-white">КешбекНовострой</span>
+                    </a>
+                    <p class="text-gray-400">Сервис кешбека при покупке новостроек от 2,5%</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-4">Сервис</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Как это работает</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Калькулятор кешбека</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Партнеры</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Отзывы</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-4">Компания</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">О нас</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Контакты</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Карьера</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition-all">Блог</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium mb-4">Контакты</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>
+                            <a href="mailto:info@cashbacknovostroy.ru" class="text-gray-400 hover:text-white transition-all">info@cashbacknovostroy.ru</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone mr-2 text-gray-400"></i>
+                            <a href="tel:+78001234567" class="text-gray-400 hover:text-white transition-all">8 (800) 123-45-67</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-2 text-gray-400"></i>
+                            <span class="text-gray-400">Краснодар, ул. Примерная, 15</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 mb-4 md:mb-0">© 2023 КешбекНовострой. Все права защищены.</p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-gray-500 hover:text-white transition-all">
+                        <i class="fab fa-telegram text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-all">
+                        <i class="fab fa-vk text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-500 hover:text-white transition-all">
+                        <i class="fab fa-youtube text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle FAQ items
+        function toggleFAQ(id) {
+            const content = document.getElementById(`faq-content-${id}`);
+            const icon = document.getElementById(`faq-icon-${id}`);
+            
+            content.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+        
+        // Mobile menu toggle would be implemented here
+    </script>
+</body>
+</html>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кешбек при покупке новостройки | ВашДом</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Header -->
+    <header class="gradient-bg text-white">
+        <div class="container mx-auto px-6 py-12">
+            <div class="flex justify-between items-center mb-12">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                        <i class="fas fa-home text-indigo-600 text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-bold">ВашДом</span>
+                </div>
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#" class="hover:text-indigo-200 transition">Как это работает</a>
+                    <a href="#" class="hover:text-indigo-200 transition">Партнеры</a>
+                    <a href="#" class="hover:text-indigo-200 transition">Отзывы</a>
+                    <a href="#" class="hover:text-indigo-200 transition">FAQ</a>
+                </nav>
+                <button class="bg-white text-indigo-600 px-6 py-2 rounded-full font-medium hover:bg-indigo-50 transition">Войти</button>
+            </div>
+            
+            <div class="max-w-3xl mx-auto text-center py-16">
+                <h1 class="text-5xl font-bold mb-6">Получите кешбек до 2 000 000 ₽ за покупку новостройки</h1>
+                <p class="text-xl mb-10 opacity-90">ВашДом возвращает часть денег за квартиру обратно в ваш кошелек. Это реально.</p>
+                <button class="bg-amber-400 text-slate-900 px-8 py-4 rounded-full font-semibold text-lg hover:bg-amber-300 transition pulse-animation">Оставить заявку</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- How it works -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">Как это работает?</h2>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="bg-white rounded-xl p-8 shadow-md transition duration-300 card-hover">
+                    <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold mb-6">1</div>
+                    <h3 class="text-xl font-semibold mb-4">Оставьте заявку</h3>
+                    <p class="text-slate-600">Зарегистрируйтесь в системе и укажите данные о планируемой покупке квартиры</p>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="bg-white rounded-xl p-8 shadow-md transition duration-300 card-hover">
+                    <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold mb-6">2</div>
+                    <h3 class="text-xl font-semibold mb-4">Получите одобрение</h3>
+                    <p class="text-slate-600">Наш специалист свяжется с вами для подтверждения условий сделки</p>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="bg-white rounded-xl p-8 shadow-md transition duration-300 card-hover">
+                    <div class="w-14 h-14 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-2xl font-bold mb-6">3</div>
+                    <h3 class="text-xl font-semibold mb-4">Оформите покупку</h3>
+                    <p class="text-slate-600">Заключите договор с застройщиком с нашей поддержкой</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cashback Info -->
+    <section class="py-20 bg-slate-50">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 mb-10 md:mb-0 md:pr-10">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">Сколько можно вернуть?</h2>
+                    <p class="text-lg text-slate-600 mb-6">Мы возвращаем часть комиссии, которую получаем от застройщиков. В среднем наши клиенты получают:</p>
+                    
+                    <div class="bg-white rounded-xl p-6 shadow-md mb-6 max-w-md">
+                        <div class="flex items-center">
+                            <div class="bg-indigo-100 p-3 rounded-lg mr-4">
+                                <i class="fas fa-money-bill-wave text-indigo-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-lg">300 000 – 2 000 000 ₽</h3>
+                                <p class="text-slate-500 text-sm">Средний размер кешбека</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <ul class="space-y-3 max-w-md">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Никаких дополнительных платежей - вы платите только за квартиру</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Кешбек зачисляется сразу после регистрации сделки</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                            <span>Работаем с топовыми застройщиками России</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="md:w-1/2">
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-md mx-auto">
+                        <div class="gradient-bg py-4 px-6">
+                            <h3 class="text-white font-semibold text-xl">Калькулятор кешбека</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="mb-6">
+                                <label class="block text-slate-700 mb-2" for="price">Стоимость квартиры, ₽</label>
+                                <input type="range" id="price" min="2000000" max="20000000" value="5000000" step="100000" class="w-full mb-2">
+                                <div class="flex justify-between text-sm text-slate-500">
+                                    <span>2 млн</span>
+                                    <span>20 млн</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-slate-700 mb-2" for="region">Регион</label>
+                                <select id="region" class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option>Москва и МО</option>
+                                    <option>Санкт-Петербург</option>
+                                    <option>Другие регионы</option>
+                                </select>
+                            </div>
+                            
+                            <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100 mb-6">
+                                <p class="text-sm text-slate-600 mb-1">Ваш кешбек:</p>
+                                <p class="text-2xl font-bold text-indigo-600">375 000 ₽</p>
+                            </div>
+                            
+                            <button class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition">Оставить заявку</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">Работаем с лучшими застройщиками</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 place-items-center">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">ПИК</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">Самолет</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">Эталон</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">ГК ФСК</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">А101</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">Донстрой</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">ГК Гранель</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex items-center justify-center h-24 w-full">
+                    <p class="text-xl font-semibold text-slate-800">Инград</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="py-20 bg-slate-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">Отзывы клиентов</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="bg-white rounded-xl p-8 shadow-md transition duration-300 card-hover">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold mr-4">ИК</div>
+                        <div>
+                            <h4 class="font-semibold">Ирина Королёва</h4>
+                            <p class="text-slate-500 text-sm">Купила квартиру в Москве</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-700 mb-6">"Получила 450 000 рублей кешбека за квартиру в ЖК "Солнечный". Все честно и прозрачно, деньги пришли сразу после регистрации сделки. Рекомендую!"</p>
+                    <div class="flex text-amber-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <!-- Review 2 -->
+                <div class="bg-white rounded-xl p-8 shadow-md transition duration-300 card-hover">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold mr-4">АС</div>
+                        <div>
+                            <h4 class="font-semibold">Алексей Смирнов</h4>
+                            <p class="text-slate-500 text-sm">Купил квартиру в Санкт-Петербурге</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-700 mb-6">"Быстро оформили сделку, помогли с документами. Кешбек получил 325 тысяч - приятный бонус к покупке квартиры. Спасибо ВашДом!"</p>
+                    <div class="flex text-amber-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                
+                <!-- Review 3 -->
+                <div class="bg-white rounded-xl p-8 shadow-md transition duration-300 card-hover">
+                    <div class="flex items-center mb-6">
+                        <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold mr-4">ДП</div>
+                        <div>
+                            <h4 class="font-semibold">Дмитрий Петров</h4>
+                            <p class="text-slate-500 text-sm">Купил квартиру в Новосибирске</p>
+                        </div>
+                    </div>
+                    <p class="text-slate-700 mb-6">"Пошел к застройщику через ВашДом и сэкономил 280 000 рублей. Процесс простой, поддерживают на всех этапах. Буду советовать друзьям!"</p>
+                    <div class="flex text-amber-400">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="py-20 gradient-bg text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Готовы получить кешбек за покупку квартиры?</h2>
+            <p class="text-xl mb-10 max-w-2xl mx-auto opacity-90">Оставьте заявку прямо сейчас и наш специалист свяжется с вами в течение 15 минут</p>
+            
+            <form class="max-w-md mx-auto">
+                <div class="flex">
+                    <input type="text" placeholder="Ваш телефон" class="flex-grow px-6 py-4 rounded-l-full focus:outline-none text-slate-900">
+                    <button class="bg-amber-400 text-slate-900 px-8 py-4 rounded-r-full font-semibold hover:bg-amber-300 transition">Отправить</button>
+                </div>
+                <p class="text-sm opacity-80 mt-3">Нажимая кнопку, вы соглашаетесь с <a href="#" class="underline">политикой конфиденциальности</a></p>
+            </form>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="py-20">
+        <div class="container mx-auto px-6 max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-16">Частые вопросы</h2>
+            
+            <div class="space-y-4">
+                <!-- Question 1 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full text-left p-6 hover:bg-slate-50 transition flex justify-between items-center">
+                        <span class="font-medium text-lg">Какой максимальный кешбек я могу получить?</span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-6 pt-0 border-t border-slate-200">
+                        <p>Максимальный размер кешбека зависит от стоимости квартиры и региона покупки. В Москве и Санкт-Петербурге клиенты получают в среднем от 300 000 до 2 000 000 рублей. В других регионах кешбек составляет от 100 000 до 800 000 рублей.</p>
+                    </div>
+                </div>
+                
+                <!-- Question 2 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full text-left p-6 hover:bg-slate-50 transition flex justify-between items-center">
+                        <span class="font-medium text-lg">Когда я получу кешбек?</span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-6 pt-0 border-t border-slate-200">
+                        <p>Кешбек зачисляется на ваш счет в течение 5 рабочих дней после государственной регистрации права собственности на квартиру. Вам не нужно никуда ходить - мы все делаем автоматически.</p>
+                    </div>
+                </div>
+                
+                <!-- Question 3 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full text-left p-6 hover:bg-slate-50 transition flex justify-between items-center">
+                        <span class="font-medium text-lg">Нужно ли платить вам за услуги?</span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-6 pt-0 border-t border-slate-200">
+                        <p>Нет, наши услуги абсолютно бесплатны для покупателей. Мы получаем комиссию от застройщиков за привлечение клиентов и делимся этой комиссией с вами в виде кешбека.</p>
+                    </div>
+                </div>
+                
+                <!-- Question 4 -->
+                <div class="border border-slate-200 rounded-xl overflow-hidden">
+                    <button class="faq-toggle w-full text-left p-6 hover:bg-slate-50 transition flex justify-between items-center">
+                        <span class="font-medium text-lg">Можно ли получить кешбек за уже купленную квартиру?</span>
+                        <i class="fas fa-chevron-down transition-transform"></i>
+                    </button>
+                    <div class="faq-content hidden p-6 pt-0 border-t border-slate-200">
+                        <p>К сожалению, нет. Кешбек выплачивается только при заключении договора через нашу платформу. Если вы уже купили квартиру, мы не сможем вернуть вам часть средств.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                            <i class="fas fa-home text-indigo-600 text-xl"></i>
+                        </div>
+                        <span class="text-2xl font-bold">ВашДом</span>
+                    </div>
+                    <p class="text-slate-400 mb-6">Возвращаем часть денег за покупку квартиры в новостройке</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">
+                            <i class="fab fa-vk"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">О сервисе</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Как это работает</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Партнерам</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Вакансии</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Документы</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Помощь</h3>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Частые вопросы</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Контакты</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-white transition">Политика конфиденциальности</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Контакты</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3 text-slate-400"></i>
+                            <a href="tel:+78005553535" class="text-slate-400 hover:text-white transition">8 (800) 555-35-35</a>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3 text-slate-400"></i>
+                            <a href="mailto:info@vashdom.ru" class="text-slate-400 hover:text-white transition">info@vashdom.ru</a>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-slate-400"></i>
+                            <span class="text-slate-400">Москва, ул. Ленина, 1</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-800 mt-12 pt-8 text-center text-slate-500 text-sm">
+                <p>© 2023 ВашДом. Все права защищены</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // FAQ toggle
+        document.querySelectorAll('.faq-toggle').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('i');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+        
+        // Price calculator
+        const priceSlider = document.getElementById('price');
+        const cashbackDisplay = document.querySelector('#region').parentElement.nextElementSibling.querySelector('p:nth-child(2)');
+        
+        function updateCashback() {
+            const price = parseInt(priceSlider.value);
+            const region = document.getElementById('region').value;
+            
+            let rate;
+            if (region === 'Москва и МО') rate = 0.05;
+            else if (region === 'Санкт-Петербург') rate = 0.045;
+            else rate = 0.04;
+            
+            // Minimal cashback
+            const cashback = Math.max(100000, Math.floor(price * rate));
+            
+            // Format with spaces
+            cashbackDisplay.textContent = cashback.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+        }
+        
+        priceSlider.addEventListener('input', updateCashback);
+        document.getElementById('region').addEventListener('change', updateCashback);
+        
+        // Initialize
+        updateCashback();
+    </script>
+</body>
+</html>
